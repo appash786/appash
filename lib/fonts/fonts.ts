@@ -2,6 +2,6 @@
 import localFont from 'next/font/local';
 
 export const myPixelFont = localFont({
-  src: './PixelKart-Regular.otf',
+  src: './Qusako.otf',
   display: 'swap',
 });

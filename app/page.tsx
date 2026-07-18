@@ -2,12 +2,14 @@
 import Hero  from "@/components/ThreeJs/VisualHero";
 import PixelBlast from "@/components/Bg/PixelsBlast";
 import About from "@/components/Home/About";
+import Who from "@/components/Home/Who";
+import Skills from "@/components/Home/Skills";
 
 export default function Home() {
   return <>
+  <Who/>
+ <Skills />
 
-  <Hero/>
-  <About/>
 
 
 

@@ -45,33 +45,37 @@ const Who = () => {
     });
   };
 
-  useGSAP(() => {
-    if (!sectionRef.current || !progressBarRef.current) return;
+  useGSAP(
+    () => {
+      if (!sectionRef.current || !progressBarRef.current) return;
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: "top top",
-        end: "+=200%", // scroll distance
-        pin: true,
-        scrub: true,
-        invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const progress = self.progress;
-          const index = Math.min(
-            Math.floor(progress * menuItems.length),
-            menuItems.length - 1
-          );
-          setScrollActiveIndex(index);
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top top",
+          end: "+=200%", // scroll distance
+          pin: true,
+          scrub: 1,
+
+          invalidateOnRefresh: true,
+          onUpdate: (self) => {
+            const progress = self.progress;
+            const index = Math.min(
+              Math.floor(progress * menuItems.length),
+              menuItems.length - 1,
+            );
+            setScrollActiveIndex(index);
+          },
         },
-      },
-    });
+      });
 
-    tl.to(progressBarRef.current, {
-      height: "100%",
-      ease: "none",
-    });
-  }, { scope: sectionRef });
+      tl.to(progressBarRef.current, {
+        height: "100%",
+        ease: "none",
+      });
+    },
+    { scope: sectionRef },
+  );
 
   useEffect(() => {
     const activeImage = menuItems[activeIndex]?.image;
@@ -81,7 +85,10 @@ const Who = () => {
   }, [activeIndex]);
 
   return (
-    <section ref={sectionRef} className="w-screen z-10  h-screen relative flex justify-center items-center">
+    <section
+      ref={sectionRef}
+      className="w-screen z-10  h-screen relative flex justify-center items-center"
+    >
       <div className="w-full h-full absolute">
         {/* Slot A */}
         {slotA && (
@@ -114,8 +121,8 @@ const Who = () => {
         <div className="w-full h-[40%] flex justify-end BorderColor border-b ">
           <div className="w-[40%] h-full text-right justify-end items-centerof pr-10 BorderColor border-l ">
             <div className="w-full h-full flex flex-col justify-center items-end ">
-              <PixelRevealText
-                text={"Not just a dev"}
+              {/* <PixelRevealText
+                text={""}
                 gridSize={16}
                 className="uppercase text-white font-bold"
                 style={{
@@ -131,7 +138,17 @@ const Who = () => {
                   fontSize: "clamp(3.1rem, 5.6vw, 5.5rem)",
                   lineHeight: 0.95,
                 }}
-              />
+              /> */}
+              <p
+                className="text-white uppercase f"
+                style={{
+                  fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)",
+                  lineHeight: 0.95,
+                }}
+              >
+                Not just a dev <br />
+                in progress
+              </p>
               <p className="mt-5 text-white/50 font-sans leading-relaxed">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt,
                 incidunt. Animi, voluptate accusamus minima blanditiis quibusdam

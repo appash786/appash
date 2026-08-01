@@ -16,7 +16,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { scale } from "framer-motion";
-
+import PixelBlast from "../PixelBlast";
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 // --- Keep your Shaders, BgScene, and FgScene exactly as they are ---
@@ -186,12 +186,7 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             pointerEvents: "none",
           }}
         >
-          <PixelRevealText
-            text="Appash"
-            gridSize={46}
-            className="uppercase italic text-white"
-            style={{ fontSize: "clamp(5.5rem, 40vw, 24rem)" }}
-          />
+<p className="text-white uppercase font-bold italic" style={{ fontSize: "clamp(3.1rem, 60.6vw, 20.3rem)", lineHeight: 0.95 }}>appash</p>
         </div>
 
         {/* Layer 3 — foreground with depth parallax */}
@@ -248,7 +243,7 @@ export default function Hero() {
         maskRef.current,
         { clipPath: "inset(0% 0% 0% 0% round 0px)" },
         {
-          clipPath: "inset(12% 35% 12% 35% round 22px)",
+          clipPath: "inset(12% 35% 12% 35% round 0px)",
           ease: "power2.inOut",
           duration: 1,
         },
@@ -330,27 +325,13 @@ export default function Hero() {
         {/* Left Column Text */}
         <div className="flex flex-col justify-baseline items-end text-right pr-4 md:pr-10">
           <div
-            className={`${myPixelFont.className} text-[5vw] md:text-[3vw] leading-[0.95] text-white uppercase`}
+            className={` text-[5vw] md:text-[3vw] leading-[0.95] text-white uppercase`}
           >
             <div className="whitespace-nowrap">
               {" "}
-              <PixelRevealText
-                text="BORN"
-                gridSize={46}
-                className="uppercase  text-white"
-                style={{ fontSize: "clamp(1.5rem, 3.8vw, 5rem)" }}
-                active={revealActive}
-              />
+              <p className="text-white uppercase f" style={{ fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)", lineHeight: 0.95 }}>BORN TO <br /><span className="font-bold">BUILD</span></p>
             </div>
-            <div className="whitespace-nowrap">
-              <PixelRevealText
-                text="TO BUILD"
-                gridSize={46}
-                className="uppercase  text-white"
-                style={{ fontSize: "clamp(1.5rem, 3.8vw, 5rem)" }}
-                active={revealActive}
-              />
-            </div>
+
           </div>
         </div>
 
@@ -360,31 +341,38 @@ export default function Hero() {
         {/* Right Column Text */}
         <div className="flex flex-col items-start text-left pl-4 md:pl-10">
           <div
-            className={`${myPixelFont.className} text-[5vw] md:text-[3vw] leading-[0.95] text-white uppercase`}
+            className={`text-[5vw] md:text-[3vw] leading-[0.95] text-white uppercase`}
           >
             <div className="whitespace-nowrap">
               {" "}
-              <PixelRevealText
-                text="MADE TO"
-                gridSize={46}
-                className="uppercase  text-white"
-                style={{ fontSize: "clamp(1.5rem, 3.8vw, 5rem)" }}
-                active={revealActive}
-              />
+              <p className="text-white uppercase f" style={{ fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)", lineHeight: 0.95 }}>MADE TO<br /><span className="font-bold">CREATE</span></p>
+
             </div>
-            <div className="whitespace-nowrap">
-             
-              <PixelRevealText
-                text="CREATE"
-                gridSize={46}
-                className="uppercase  text-white"
-                style={{ fontSize: "clamp(1.5rem, 3.8vw, 5rem)" }}
-                active={revealActive}
-              />
-            </div>
+
           </div>
         </div>
       </div>
+      <div className="w-full h-full  z-0 opacity-80  fixed top-0 left-0 ">
+      <PixelBlast
+    variant="square"
+    pixelSize={7}
+    color="#8B0000"
+    patternScale={8.5}
+    patternDensity={2}
+    pixelSizeJitter={1.05}
+    enableRipples
+    rippleSpeed={1}
+    rippleThickness={0.12}
+    rippleIntensityScale={1.5}
+    liquid={false}
+    liquidStrength={0.12}
+    liquidRadius={1.2}
+    liquidWobbleSpeed={5}
+    speed={0.25}
+    edgeFade={0.27}
+    transparent
+  />
+</div>
     </div>
   );
 }

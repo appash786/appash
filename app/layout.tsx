@@ -19,10 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${montserrat.variable} antialiased`}
-    >
+    <html lang="en" className={`${montserrat.variable} antialiased`}>
       <body style={{ margin: 0, padding: 0 }}>
         {" "}
         <LenisProvider>{children}</LenisProvider>

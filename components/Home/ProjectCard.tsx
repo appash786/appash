@@ -10,6 +10,7 @@ interface ProjectCardProps {
     link: string;
     image: { img: string; depth: string };
   };
+  index?: number;
 }
 
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
@@ -48,15 +49,15 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
             <p className="text-white/60 text-sm sm:text-base font-light tracking-wide">
               {project.category}
             </p>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1 overflow-hidden justify-betwee">
               {/* <p className="text-white text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight group-hover:text-amber-200 transition-colors duration-300">
               {project.title}
             </p> */}
-
+            <p className="text-white group-hover:translate-x-0 transition-all duration-500 text-6xl -translate-x-10 leading-[0.95]">{'> '} </p>
               <SplitText
                 text={project.title}
                 tag="h1"
-                className="text-4xl  text-white text-center"
+                className="text-4xl -translate-x-10 group-hover:translate-x-0 transition-all duration-500 text-white text-center"
                 delay={50}
                 duration={0.5}
                 ease="power3.out"

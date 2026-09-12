@@ -186,7 +186,15 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             pointerEvents: "none",
           }}
         >
-<p className="text-white uppercase font-bold italic" style={{ fontSize: "clamp(3.1rem, 60.6vw, 20.3rem)", lineHeight: 0.95 }}>appash</p>
+          <p
+            className="text-white uppercase font-bold italic"
+            style={{
+              fontSize: "clamp(3.1rem, 60.6vw, 20.3rem)",
+              lineHeight: 0.95,
+            }}
+          >
+            appash
+          </p>
         </div>
 
         {/* Layer 3 — foreground with depth parallax */}
@@ -200,6 +208,31 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             <FgScene mouse={mouse} onReady={onReady} cameraZ={cameraZ} />
           </Suspense>
         </Canvas>
+
+        {/* <div
+          className="hero-text-layer"
+          style={{
+            position: "absolute",
+            inset: 0,
+            zIndex: 23,
+            display: "flex",
+            alignItems: "end",
+            justifyContent: "center",
+            pointerEvents: "none",
+            marginBottom: ""
+          }}
+        >
+          <p
+            className="text-white mb-10 z-22 text-3xl  "
+            style={{
+              fontSize: "",
+              lineHeight: 0.95,
+            }}
+          >
+            Creative Developer & Multimedia Designer
+          </p>
+          <div className="w-full h-45 bg-gradient-to-t from-black/40 via-black/0 to-transparent absolute z-21" />
+        </div> */}
       </div>
     </div>
   );
@@ -329,9 +362,17 @@ export default function Hero() {
           >
             <div className="whitespace-nowrap">
               {" "}
-              <p className="text-white uppercase f" style={{ fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)", lineHeight: 0.95 }}>BORN TO <br /><span className="font-bold">BUILD</span></p>
+              <p
+                className="text-white uppercase f"
+                style={{
+                  fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)",
+                  lineHeight: 0.95,
+                }}
+              >
+                Creative<br />
+                <span className="font-bold">Developer</span>
+              </p>
             </div>
-
           </div>
         </div>
 
@@ -345,34 +386,42 @@ export default function Hero() {
           >
             <div className="whitespace-nowrap">
               {" "}
-              <p className="text-white uppercase f" style={{ fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)", lineHeight: 0.95 }}>MADE TO<br /><span className="font-bold">CREATE</span></p>
-
+              <p
+                className="text-white uppercase f"
+                style={{
+                  fontSize: "clamp(3.1rem, 5.6vw, 5.3rem)",
+                  lineHeight: 0.95,
+                }}
+              >
+                Multimedia
+                <br />
+                <span className="font-bold">Designer</span>
+              </p>
             </div>
-
           </div>
         </div>
       </div>
       <div className="w-full h-full  z-0 opacity-80  fixed top-0 left-0 ">
-      <PixelBlast
-    variant="square"
-    pixelSize={7}
-    color="#8B0000"
-    patternScale={8.5}
-    patternDensity={2}
-    pixelSizeJitter={1.05}
-    enableRipples
-    rippleSpeed={1}
-    rippleThickness={0.12}
-    rippleIntensityScale={1.5}
-    liquid={false}
-    liquidStrength={0.12}
-    liquidRadius={1.2}
-    liquidWobbleSpeed={5}
-    speed={0.25}
-    edgeFade={0.27}
-    transparent
-  />
-</div>
+        <PixelBlast
+          variant="square"
+          pixelSize={7}
+          color="#8B0000"
+          patternScale={8.5}
+          patternDensity={2}
+          pixelSizeJitter={1.05}
+          enableRipples
+          rippleSpeed={1}
+          rippleThickness={0.12}
+          rippleIntensityScale={1.5}
+          liquid={false}
+          liquidStrength={0.12}
+          liquidRadius={1.2}
+          liquidWobbleSpeed={5}
+          speed={0.25}
+          edgeFade={0.27}
+          transparent
+        />
+      </div>
     </div>
   );
 }

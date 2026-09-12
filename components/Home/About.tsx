@@ -425,7 +425,7 @@ const About: React.FC<AboutSectionProps> = ({
             end: () => `+=${pinDistance + window.innerHeight}`, // Spans across the entry scroll + pin duration
             scrub: 0.7,
             pin: false, // Do not pin in this trigger (handled by about-pin-trigger)
-            markers: false,
+   
             anticipatePin: 1,
             invalidateOnRefresh: true,
             refreshPriority: -1,

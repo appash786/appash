@@ -1,6 +1,6 @@
 import React from "react";
 import FlowingMenu from "@/components/Menu/FlowingMenu";
-
+import Bloglist from "@/components/Cards/BlogList";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import LineBar from "../LineBar";
@@ -72,55 +72,9 @@ const Blogs = () => {
           </p>
         </div>
 
-        <div className="w-full flex flex-col   relative ">
-          {BlogsData.map((item, index) => (
-            <div>
-              <div key={index} className="w-full  px-16  py-5">
-                <div className="flex px-3  f ">
-                  <div className="relative aspect-video w-[900px] overflow-hidden  shadow-md bg-gray-100">
-                    {/* Tags Container */}
-                    <div className="absolute right-3 top-3 z-10 flex max-w-[30%] flex-wrap justify-end gap-2">
-                      {item.tags.map((tag, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center rounded bg-amber-100 px-2.5 py-1 shadow-sm text-amber-900"
-                        >
-                          <p className="text-xs font-semibold uppercase tracking-wider">
-                            {tag}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
 
-                    {/* Background Image */}
-                    <Image
-                      className="object-cover"
-                      src={item.image}
-                      alt="Story thumbnail"
-                      fill
-                      sizes="500px"
-                    />
-                  </div>
-
-                  <div></div>
-
-                  <div className="ml-8 flex flex-col w-full  justify-between">
-            
-                      <p className="text-white text-2xl">{item.title}</p>
-                      <p className="text-white/70 text-md">{item.readTime}</p>
-   
-
-                  </div>
-
-                  <div className="float-right  w-[5%] flex justify-center items-center ">
-                    <p className="text-white">{">"}</p>
-                  </div>
-                </div>
-              </div>
-              <LineBar />
-            </div>
-          ))}
-        </div>
+            <Bloglist  lists={BlogsData}  />
+    
       </div>
     </section>
   );

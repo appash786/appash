@@ -31,6 +31,7 @@ const Who = () => {
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
+  const SlideRef = useRef<HTMLDivElement>(null);
 
   const handleHover = (image: string | null) => {
     if (!image) return; // keep last active image on mouse leave
@@ -48,7 +49,23 @@ const Who = () => {
   useGSAP(
     () => {
       if (!sectionRef.current || !progressBarRef.current) return;
+      gsap.fromTo(
+        SlideRef.current,
+        { translateY: 200 },
+        {
+          translateY: 0,
+          ease: "expo.out",
+          duration: 2,
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "center 70%",
+            end: "bottom -20%",
 
+            scrub: true,
+            invalidateOnRefresh: true,
+          },
+        },
+      );
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -87,9 +104,11 @@ const Who = () => {
   return (
     <section
       ref={sectionRef}
-      className="w-screen z-10  h-screen relative flex justify-center items-center"
+      className=""
     >
-      <div className="w-full h-full absolute">
+      <div ref={SlideRef} className="w-screen z-10  h-screen relative flex justify-center items-center">
+
+        <div className="w-full h-full absolute">
         {/* Slot A */}
         {slotA && (
           <Image
@@ -186,6 +205,9 @@ const Who = () => {
           </div>
         </div>
       </div>
+
+      </div>
+      
     </section>
   );
 };

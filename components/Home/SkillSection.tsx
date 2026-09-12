@@ -32,7 +32,7 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
             active={true}
           /> */}
 
-          <p className="text-[20vw] text-white">{text}</p>
+          <p className="text-[20vw] text-white SkillHead">{text}</p>
         </div>
       </div>
 

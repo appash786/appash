@@ -70,6 +70,12 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
                 onLetterAnimationComplete={handleAnimationComplete}
               />
             </div>
+          <div>
+            <div className="w-full h-[10vh] bg-black p-5 ">
+              <button>visit us</button>
+              
+            </div>
+          </div>
           </div>
         </div>
       </div>

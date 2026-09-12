@@ -43,7 +43,7 @@ const LineBar: React.FC<LineBarProps> = ({
             trigger: lineRef.current,
             start: start,
             toggleActions: "play none none reverse",
-            markers:true,
+          
           },
         }
       );

@@ -1,7 +1,14 @@
 "use client";
 
-import React, { forwardRef, useState, useEffect, useRef } from "react";
+import React, {
+  forwardRef,
+  useState,
+  useEffect,
+  useRef,
+  useImperativeHandle,
+} from "react";
 import { RotateCw } from "lucide-react";
+import gsap from "gsap";
 
 export interface Skill {
   name: string;
@@ -26,13 +33,38 @@ export interface CardData {
   skills: Skill[];
 }
 
+export interface WhatCardHandle {
+  /** Flip to back (called by GSAP scroll animation) */
+  flip: () => void;
+  /** Flip back to front (called by GSAP scroll reverse) */
+  unflip: () => void;
+  /** The outer wrapper element for GSAP position/spread tweens */
+  outerEl: HTMLDivElement | null;
+  /** The inner flip-div element (if needed for direct GSAP rotation) */
+  innerEl: HTMLDivElement | null;
+}
+
 interface WhatCardProps {
   card: CardData;
 }
 
-const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
+const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [gsapFlipped, setGsapFlipped] = useState(false);
   const lastScrollTimeRef = useRef<number>(0);
+  const innerRef = useRef<HTMLDivElement>(null);
+  const outerRef = useRef<HTMLDivElement>(null);
+
+  // Expose imperative flip API to parent
+  useImperativeHandle(ref, () => ({
+    flip: () => setGsapFlipped(true),
+    unflip: () => setGsapFlipped(false),
+    outerEl: outerRef.current,
+    innerEl: innerRef.current,
+  }));
+
+  // Combined flipped state: either user click or GSAP scroll
+  const showBack = isFlipped || gsapFlipped;
 
   // Track global scroll activity timestamp
   useEffect(() => {
@@ -51,7 +83,7 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
     };
   }, []);
 
-  // When card is flipped to backside, flip back to normal if user starts scrolling
+  // When user-click-flipped to backside, flip back if user scrolls
   useEffect(() => {
     if (!isFlipped) return;
 
@@ -59,7 +91,6 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
       setIsFlipped(false);
     };
 
-    // Small delay before listening to scroll to avoid instant trigger on click frame momentum
     const timeoutId = setTimeout(() => {
       window.addEventListener("scroll", handleScroll, { passive: true });
       window.addEventListener("wheel", handleScroll, { passive: true });
@@ -76,38 +107,42 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
 
   const toggleFlip = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    // Check if screen is currently scrolling before flipping to backside
     if (!isFlipped) {
       const isScrolling = Date.now() - lastScrollTimeRef.current < 200;
-      if (isScrolling) {
-        return; // Prevent flip while screen is actively scrolling
-      }
+      if (isScrolling) return;
     }
-
-    setIsFlipped((prev) => !prev);
+    const next = !isFlipped;
+    setIsFlipped(next);
+    // GSAP owns the DOM rotation — animate directly so scroll-driven GSAP
+    // and click-driven GSAP both target the same property without conflict
+    if (innerRef.current) {
+      gsap.to(innerRef.current, {
+        rotateY: next ? 180 : 0,
+        duration: 0.7,
+        ease: "power2.inOut",
+        overwrite: true,
+      });
+    }
   };
 
   return (
     <div
-      ref={ref}
+      ref={outerRef}
       className={`absolute z-10 ${card.initialLeft} ${card.width} ${card.height} [perspective:1000px] cursor-pointer group`}
-      style={{
-        top: card.initialTop,
-      }}
+      style={{ top: card.initialTop }}
       onClick={toggleFlip}
     >
       <div
-        className={`relative w-full h-full duration-700 [transform-style:preserve-3d] transition-transform  ${
-          isFlipped ? "[transform:rotateY(180deg)]" : ""
-        }`}
+        ref={innerRef}
+        className="relative w-full h-full [transform-style:preserve-3d]"
         style={{
           boxShadow: `0 20px 40px -15px ${card.glow}`,
+          // GSAP owns transform — no CSS transition here to avoid conflicts
         }}
       >
         {/* FRONT SIDE */}
         <div
-          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden  [backface-visibility:hidden]`}
+          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden [backface-visibility:hidden]`}
         >
           <div className="flex items-center justify-between">
             <span
@@ -141,7 +176,7 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
 
         {/* BACK SIDE */}
         <div
-          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden  [backface-visibility:hidden] [transform:rotateY(180deg)]`}
+          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]`}
         >
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>
@@ -149,7 +184,7 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
                 {card.title}
               </h4>
               <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-mono">
-                Proficiency & Skills
+                Proficiency &amp; Skills
               </span>
             </div>
             <button
@@ -169,11 +204,11 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
                   <span className="text-neutral-200 font-medium">{skill.name}</span>
                   <span className="text-neutral-400">{skill.level}%</span>
                 </div>
-                <div className="w-full h-2  bg-neutral-900/90 border border-white/10 overflow-hidden relative p-[1px]">
+                <div className="w-full h-2 bg-neutral-900/90 border border-white/10 overflow-hidden relative p-[1px]">
                   <div
                     className={`h-full bg-gradient-to-r ${card.barGradient} transition-all duration-1000 ease-out`}
                     style={{
-                      width: isFlipped ? `${skill.level}%` : "0%",
+                      width: showBack ? `${skill.level}%` : "0%",
                       transitionDelay: `${idx * 80}ms`,
                     }}
                   />
@@ -198,4 +233,3 @@ const WhatCard = forwardRef<HTMLDivElement, WhatCardProps>(({ card }, ref) => {
 WhatCard.displayName = "WhatCard";
 
 export default WhatCard;
-

@@ -118,7 +118,7 @@ const SplitText: React.FC<SplitTextProps> = ({
                 once: true,
                 fastScrollEnd: true,
                 anticipatePin: 0.4,
-                markers:true,
+       
               },
               onComplete: () => {
                 animationCompletedRef.current = true;

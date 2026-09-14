@@ -57,7 +57,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
               <SplitText
                 text={project.title}
                 tag="h1"
-                className="text-4xl -translate-x-10 group-hover:translate-x-0 transition-all duration-500 text-white text-center"
+                className="text-4xl -translate-x-10 group-hover:translate-x-0 transition-all duration-500 HeroText text-center"
                 delay={50}
                 duration={0.5}
                 ease="power3.out"

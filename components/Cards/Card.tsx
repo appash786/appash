@@ -70,7 +70,7 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
 
   return (
     <div
-      className="w-full h-[78%] relative  justify-center items-center flex rounded-xl bg-black/40"
+      className="w-full h-[78%] relative  justify-center items-center flex rounded-xl "
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >

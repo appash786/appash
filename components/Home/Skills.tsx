@@ -59,7 +59,7 @@ const Skills = () => {
   );
 
   return (
-    <section ref={containerRef} className="relative bg-[#0a0a0a] overflow-hidden">
+    <section ref={containerRef} className="relative  overflow-hidden">
       {/* Background Particles Layer fixed to viewport and toggled by ScrollTrigger */}
       <div
         ref={particlesRef}

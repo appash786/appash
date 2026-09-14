@@ -17,7 +17,7 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
     <section
       ref={containerRef}
       id={`Skills-${text}`}
-      className="relative w-screen h-screen flex items-center justify-center bg-[#0a0a0a] overflow-hidden"
+      className="relative w-screen h-screen flex items-center justify-center  overflow-hidden"
     >
       {/* Background Text Layer (behind the 3D canvas) */}
       <div className="absolute inset-0  z-10 flex items-center justify-center pointer-events-none">
@@ -32,7 +32,7 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
             active={true}
           /> */}
 
-          <p className="text-[20vw] text-white SkillHead">{text}</p>
+          <p className="text-[20vw] HeroText font-bold SkillHead ">{text}</p>
         </div>
       </div>
 

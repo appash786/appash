@@ -7,10 +7,16 @@ import Projects from "@/components/Home/Projects";
 import Skills from "@/components/Home/Skills";
 import What from "@/components/Home/What";
 import Blogs from "@/components/Home/Blogs";
+import Me from "@/components/Home/Me";
+import Brief from "@/components/Home/Brief";
+import TopographyBackground from "@/components/Bg/TopographyBackground";
 export default function Home() {
   return (
     <>
+    <TopographyBackground />
       <Hero />
+      <Brief />
+      <Me />
       {/* <Who /> */}
       <Skills />
       <What />

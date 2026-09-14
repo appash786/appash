@@ -293,7 +293,7 @@ const What = () => {
             <div className="w-full h-[200px] overflow-hidden  ">
               <p
                 ref={textOneRef}
-                className="translate-y-50 text-[180px] uppercase text-white"
+                className="translate-y-50 text-[180px] uppercase HeroText"
               >
                 Innovate with
               </p>
@@ -302,7 +302,7 @@ const What = () => {
             <div className="w-full h-[200px] overflow-hidden flex items-end  justify-end ">
               <p
                 ref={textTwoRef}
-                className="-translate-y-50 text-[180px] uppercase text-white"
+                className="-translate-y-50 text-[180px] uppercase HeroText font-bold"
               >
                 a Human touch
               </p>

@@ -18,7 +18,7 @@ interface LineBarProps {
 }
 
 const LineBar: React.FC<LineBarProps> = ({
-  className = "w-full h-px bg-white/30",
+  className = "w-full h-px bg-[#29221a46]",
   duration = 1.5,
   ease = "power3.out",
   start = "top 85%",

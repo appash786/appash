@@ -200,6 +200,7 @@ const Topography = ({
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
+    canvas.style.zIndex = 1;
     container.appendChild(canvas);
 
     const geometry = new Triangle(gl);

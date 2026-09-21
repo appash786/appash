@@ -2,7 +2,7 @@ import Image from "next/image";
 import React from "react";
 import DecryptedText from "../Text/DecryptedText";
 import BlockReveal from "../Text/BlockReveal";
-const Brief = () => {
+const BCta = () => {
   return (
     <section className="w-full z-6 h-screen ">
       <div className="flex justify-center items-center h-full">
@@ -13,7 +13,7 @@ const Brief = () => {
             delay={0.15}
             duration={1.2}
           >
-            <p className=" text-black block">EVERY FRAME</p>
+            <p className=" text-black block uppercase">BUT i’m HERE</p>
           </BlockReveal>
           <br />{" "}
           <span className="font-bold text-[#A50000]">
@@ -24,37 +24,25 @@ const Brief = () => {
               delay={0.15}
               duration={1.2}
             >
-              <p className=" text-[#A50000] block">TELLS A STORY.</p>
+              <p className=" text-[#A50000] block uppercase ">NOT TO TALK</p>
             </BlockReveal>
 
           </span>
           <br />
                       <BlockReveal
-                      duration={1.2}
               className=" text-black block"
               color="#A50000"
               delay={0.15}
+              duration={1.2}
             >
-              <p className=" text-black block"> EVERY PIXEL HAS </p>
+              <p className=" text-black block uppercase "> ABOUT mySELF </p>
             </BlockReveal>
          <br />{" "}
-          <span className="font-bold ">
-            {" "}
-            <BlockReveal
-            duration={1.2}
-              className=" text-black block"
-              color="#A50000"
-              delay={0.15}
-            >
-              <p className=" text-[#A50000] block"> A PURPOSE. </p>
-            </BlockReveal>
-            
-
-          </span>
+          
         </p>
       </div>
     </section>
   );
 };
 
-export default Brief;
+export default BCta;

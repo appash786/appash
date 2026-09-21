@@ -107,12 +107,14 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
 
   const toggleFlip = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!isFlipped) {
+    if (!isFlipped && !gsapFlipped) {
       const isScrolling = Date.now() - lastScrollTimeRef.current < 200;
       if (isScrolling) return;
     }
-    const next = !isFlipped;
+    const currentlyBack = isFlipped || gsapFlipped;
+    const next = !currentlyBack;
     setIsFlipped(next);
+    setGsapFlipped(next);
     // GSAP owns the DOM rotation — animate directly so scroll-driven GSAP
     // and click-driven GSAP both target the same property without conflict
     if (innerRef.current) {
@@ -128,21 +130,22 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
   return (
     <div
       ref={outerRef}
-      className={`absolute z-10 ${card.initialLeft} ${card.width} ${card.height} [perspective:1000px] cursor-pointer group`}
+      className={`absolute  ${card.initialLeft} ${card.width} ${card.height} [perspective:1000px] cursor-pointer  group`}
       style={{ top: card.initialTop }}
       onClick={toggleFlip}
     >
       <div
         ref={innerRef}
-        className="relative w-full h-full [transform-style:preserve-3d]"
+        className="relative  w-full h-full [transform-style:preserve-3d]"
         style={{
           boxShadow: `0 20px 40px -15px ${card.glow}`,
+          willChange: "transform",
           // GSAP owns transform — no CSS transition here to avoid conflicts
         }}
       >
         {/* FRONT SIDE */}
         <div
-          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden [backface-visibility:hidden]`}
+            className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-sm   flex flex-col justify-between overflow-hidden  [backface-visibility:hidden]`}
         >
           <div className="flex items-center justify-between">
             <span
@@ -176,7 +179,7 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
 
         {/* BACK SIDE */}
         <div
-          className={`absolute inset-0 w-full h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-md shadow-2xl flex flex-col justify-between overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]`}
+          className={`absolute inset-0 w-full  h-full p-6 sm:p-8 bg-gradient-to-br ${card.gradient} border ${card.border} backdrop-blur-sm flex flex-col justify-between overflow-hidden [backface-visibility:hidden] [transform:rotateY(180deg)]`}
         >
           <div className="flex items-center justify-between border-b border-white/10 pb-3">
             <div>

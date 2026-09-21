@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import WhatCard, { CardData, WhatCardHandle } from "./WhatCard";
+import Image from "next/image";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -16,11 +17,11 @@ const cardsData: CardData[] = [
     title: "Web Development",
     desc: "React, Next.js, TypeScript, Tailwind — responsive, fast, maintainable.",
     tag: "Core Stack",
-    gradient: "from-neutral-900 via-neutral-900/95 to-amber-950/40",
-    border: "border-amber-500/30",
-    badge: "text-amber-400 bg-amber-500/10 border-amber-500/20",
-    glow: "rgba(245, 158, 11, 0.15)",
-    barGradient: "from-amber-500 to-amber-300",
+    gradient: "from-neutral-900 via-neutral-900/95 to-rose-950/40",
+    border: "border-rose-500/30",
+    badge: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+    glow: "rgba(244, 63, 94, 0.15)",
+    barGradient: "from-rose-500 to-rose-300",
     initialLeft: "left-1/2",
     initialTop: "60%",
     targetTop: "60%",
@@ -39,11 +40,11 @@ const cardsData: CardData[] = [
     title: "UI / UX Design",
     desc: "Wireframes to polished interfaces, built around real user flows.",
     tag: "Product & Craft",
-    gradient: "from-neutral-900 via-neutral-900/95 to-indigo-950/40",
-    border: "border-indigo-500/30",
-    badge: "text-indigo-400 bg-indigo-500/10 border-indigo-500/20",
-    glow: "rgba(99, 102, 241, 0.15)",
-    barGradient: "from-indigo-500 to-indigo-300",
+    gradient: "from-neutral-900 via-neutral-900/95 to-rose-950/40",
+    border: "border-rose-500/30",
+    badge: "text-rose-400 bg-rose-500/10 border-rose-500/20",
+    glow: "rgba(244, 63, 94, 0.15)",
+    barGradient: "from-rose-500 to-rose-300",
     initialLeft: "left-1/2",
     initialTop: "60%",
     targetTop: "60%",
@@ -98,11 +99,13 @@ const techItems = [
 
 const What = () => {
   const sectionRef = useRef<HTMLDivElement>(null);
-  // Imperative handles — expose outerEl (for spread), flip() / unflip() (for flip)
   const cardHandleRefs = useRef<(WhatCardHandle | null)[]>([]);
   const textOneRef = useRef<HTMLDivElement>(null);
   const textTwoRef = useRef<HTMLDivElement>(null);
   const slideRef = useRef<HTMLDivElement>(null);
+  const clipPathRef = useRef<SVGPathElement | null>(null);
+  const WhatBgRef = useRef<HTMLDivElement>(null);
+  const WhatBgImageRef = useRef<HTMLImageElement>(null);
 
   useGSAP(
     () => {
@@ -114,28 +117,86 @@ const What = () => {
       const fanOffsetX = isMobile ? 110 : isTablet ? 180 : 260;
       const rowOffsetX = isMobile ? 210 : isTablet ? 310 : 390;
       const targetScale = isMobile ? 0.72 : 1;
-      const baseY = isMobile ? 40 : 60; // Offset lower towards the bottom
+      const baseY = isMobile ? 40 : 60;
+
+      // --- Clip path bend (perf-critical: runs every scroll tick) ---
+      const getMeClipPath = (topY: number, bottomY: number) => {
+        const topCtrl = (topY / 1000).toFixed(3);
+        const bottomCtrl = ((1000 + bottomY) / 1000).toFixed(4);
+        return `M 0,0 Q 0.5,${topCtrl} 1,0 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
+      };
+      const bendState = { topY: 0, bottomY: 0 };
+      const TOP_BENT = 70;
+      const BOTTOM_BENT = -110;
+
+      // quickSetter avoids GSAP re-parsing/re-validating the attribute on every
+      // single scroll callback — meaningfully cheaper than a raw setAttribute
+      // call inside onUpdate when scrub is firing at high frequency.
+      const setClipD = clipPathRef.current
+        ? gsap.quickSetter(clipPathRef.current, "attribute", "d")
+        : null;
+
+      const applyBend = () => {
+        setClipD?.(getMeClipPath(bendState.topY, bendState.bottomY));
+      };
+
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (prefersReducedMotion) {
+        bendState.topY = TOP_BENT;
+        bendState.bottomY = BOTTOM_BENT;
+        applyBend();
+      } else {
+        applyBend();
+
+        // Merged: bend + parallax now share ONE ScrollTrigger on WhatBgRef
+        // instead of two independent ones, halving the per-frame callback count.
+        const bgTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: WhatBgRef.current,
+            start: "top bottom",
+            end: "bottom -=1000",
+            scrub: 0.6, // slightly smoothed — fewer forced recalcs per pixel
+            invalidateOnRefresh: true, // kept: end depends on layout height
+          },
+        });
+
+        bgTl
+          .fromTo(
+            WhatBgImageRef.current,
+            { y: -340 },
+            { y: 350, ease: "none" },
+            0,
+          )
+          .to(
+            bendState,
+            {
+              bottomY: TOP_BENT,
+              ease: "none",
+              onUpdate: applyBend,
+            },
+            0,
+          );
+      }
 
       // 1. Initial pose matching fanned stack reference image
-
       gsap.fromTo(
         slideRef.current,
         { translateY: 200 },
         {
           translateY: 0,
           ease: "expo.out",
-          duration: 2,
+          duration: 1.5,
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "center 70%",
-            end: "bottom -20%",
-
-            scrub: true,
-            invalidateOnRefresh: true,
+            start: "top 80%",
+            toggleActions: "play none none none",
+            once: true,
           },
         },
       );
-
 
       const h0 = cardHandleRefs.current[0]?.outerEl;
       const h1 = cardHandleRefs.current[1]?.outerEl;
@@ -153,7 +214,6 @@ const What = () => {
         });
       }
 
-      // Card 1 (Center): front & center
       if (h1) {
         gsap.set(h1, {
           xPercent: -50,
@@ -166,7 +226,6 @@ const What = () => {
         });
       }
 
-      // Card 2 (Right): shifted right & tilted right
       if (h2) {
         gsap.set(h2, {
           xPercent: -50,
@@ -184,29 +243,26 @@ const What = () => {
         gsap.to([textOneRef.current, textTwoRef.current], {
           translateY: "0vh",
           ease: "expo.out",
-          duration: 2,
+          duration: 1.5,
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 80%",
-            invalidateOnRefresh: true,
+            toggleActions: "play none none none",
+            once: true,
           },
         });
       }
 
-      // 2. Timeline to un-fan cards into a straight horizontal side-by-side row on scroll
+      // 2. Timeline to un-fan cards into a straight horizontal row (plays once)
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: sectionRef.current,
-          start: "top top",
-          // +=250% gives enough pinned scroll distance for spread + 3 sequential flips
-          end: "+=250%",
-          pin: true,
-          scrub: 1,           // ties every tween to scroll position
-          invalidateOnRefresh: true,
+          start: "top center",
+          toggleActions: "play none none none",
+          once: true,
         },
       });
 
-      // Left card moves out to left side of row & straightens
       if (h0) {
         tl.to(
           h0,
@@ -214,15 +270,14 @@ const What = () => {
             x: -rowOffsetX,
             y: baseY,
             rotationZ: 0,
-            duration: 1,
+            duration: 0.9,
             scale: targetScale,
-            ease: "power2.inOut",
+            ease: "power2.out",
           },
           0,
         );
       }
 
-      // Center card stays in center & straightens
       if (h1) {
         tl.to(
           h1,
@@ -231,14 +286,13 @@ const What = () => {
             y: baseY,
             rotationZ: 0,
             scale: targetScale,
-            duration: 1,
-            ease: "power2.inOut",
+            duration: 0.9,
+            ease: "power2.out",
           },
           0,
         );
       }
 
-      // Right card moves out to right side of row & straightens
       if (h2) {
         tl.to(
           h2,
@@ -246,17 +300,15 @@ const What = () => {
             x: rowOffsetX,
             y: baseY,
             rotationZ: 0,
-            duration: 1,
+            duration: 0.9,
             scale: targetScale,
-            ease: "power2.inOut",
+            ease: "power2.out",
           },
           0,
         );
       }
 
-      // FLIP: after cards spread, each card flips one by one as you scroll.
-      // Targets innerEl directly so rotateY is fully scrub-driven —
-      // the pin won't release until the user scrolls through all 3 flips.
+      // FLIP: after cards spread, each card flips one by one
       [0, 1, 2].forEach((i) => {
         const innerEl = cardHandleRefs.current[i]?.innerEl;
         if (!innerEl) return;
@@ -267,11 +319,9 @@ const What = () => {
             rotateY: 180,
             duration: 0.6,
             ease: "power2.inOut",
-            // Update React state for skill bars when each flip starts/reverses
             onStart: () => cardHandleRefs.current[i]?.flip(),
-            onReverseComplete: () => cardHandleRefs.current[i]?.unflip(),
           },
-          ">",  // sequential: left → center → right
+          i === 0 ? "+=0.2" : ">-0.3",
         );
       });
     },
@@ -279,79 +329,113 @@ const What = () => {
   );
 
   return (
-    <section
-      ref={sectionRef}
-      className="relative w-screen h-screen  overflow-hidden select-none"
-    >
-      <div
-        ref={slideRef}
-        className=" w-screen h-screen  overflow-hidden select-none"
-      >
-        {/* Background Fixed Text Banner */}
-        <div className="w-full h-full flex flex-col  relative z-0">
-          <div className="w-full h-[450px] md:h-[500px] group border-t border-b  0 border-amber-50/20 px-20  flex-col  flex  gap-1">
-            <div className="w-full h-[200px] overflow-hidden  ">
-              <p
-                ref={textOneRef}
-                className="translate-y-50 text-[180px] uppercase HeroText"
-              >
-                Innovate with
-              </p>
-            </div>
-            <div className="w-full h-[2px]  "></div>
-            <div className="w-full h-[200px] overflow-hidden flex items-end  justify-end ">
-              <p
-                ref={textTwoRef}
-                className="-translate-y-50 text-[180px] uppercase HeroText font-bold"
-              >
-                a Human touch
-              </p>
-            </div>
-          </div>
-          {/* Flowing Text Strip */}
-          <div className="w-full h-[5vh] min-h-[44px] bg-white text-black overflow-hidden flex items-center relative select-none">
-            {/* Block 1 */}
-            <div className="flex shrink-0 animate-marquee items-center whitespace-nowrap">
-              {[...techItems, ...techItems].map((item, index) => (
-                <div key={index} className="flex items-center">
-                  <span className="text-black  text-lg sm:text-sm tracking-widest px-3 uppercase">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-            {/* Block 2 (identical duplicate for 100% seamless infinite loop) */}
-            <div
-              className="flex shrink-0 animate-marquee items-center whitespace-nowrap"
-              aria-hidden="true"
-            >
-              {[...techItems, ...techItems].map((item, index) => (
-                <div key={`dup-${index}`} className="flex items-center">
-                  <span className="text-black  text-lg sm:text-sm tracking-widest px-3 uppercase">
-                    {item}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+    <>
+      <section className="relative w-full bg-black">
+        <svg
+          className="absolute w-0 h-0 pointer-events-none"
+          aria-hidden="true"
+        >
+          <defs>
+            <clipPath id="meClip-2" clipPathUnits="objectBoundingBox">
+              <path
+                ref={clipPathRef}
+                d="M 0,0 Q 0.5,0 1,0 L 1,0.92 Q 0.5,0.92 0,0.92 Z"
+              />
+            </clipPath>
+          </defs>
+        </svg>
 
-        {/* Floating Cards Layer */}
-        {cardsData.map((card, index) => (
-          <WhatCard
-            key={card.id}
-            ref={(handle) => {
-              // WhatCard now forwards a WhatCardHandle — store it for imperative flip calls
-              cardHandleRefs.current[index] = handle;
-              // Also keep the outer DOM node via handle.innerEl's parent for GSAP position tweens
-              // (cardRefs is populated separately below via a wrapper div if needed,
-              //  but WhatCard's outer element is still accessible as handle)
-            }}
-            card={card}
+        <div
+          style={{
+            clipPath: "url(#meClip-2)",
+            WebkitClipPath: "url(#meClip-2)",
+            zIndex: 10,
+            willChange: "clip-path",
+          }}
+          className="relative w-full overflow-hidden aspect-[21/9] flex justify-center items-center"
+          ref={WhatBgRef}
+        >
+          <Image
+            ref={WhatBgImageRef}
+            src="/Assets/Images/Appash/BgImage-5.jpg"
+            className="w-full h-full object-cover scale-125 will-change-transform"
+            fill
+            sizes="100vw"
+            quality={75}
+            alt="BG Image"
           />
-        ))}
-      </div>
-    </section>
+        </div>
+      </section>
+      <section
+        ref={sectionRef}
+        className="relative w-screen h-screen overflow-hidden select-none"
+      >
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br bg-black pointer-events-none" />
+
+        <div
+          ref={slideRef}
+          className="w-screen h-screen overflow-hidden select-none will-change-transform"
+        >
+          {/* Background Fixed Text Banner */}
+          <div className="w-full h-full flex flex-col relative">
+            <div className="w-full h-[450px] md:h-[500px] z-11 group border-[amber-50/20] px-20 flex-col flex gap-1">
+              <div className="w-full h-[200px] overflow-hidden">
+                <p
+                  ref={textOneRef}
+                  className="translate-y-50 z-100 text-[180px] text-white uppercase"
+                >
+                  Innovate with
+                </p>
+              </div>
+              <div className="w-full h-[2px]"></div>
+              <div className="w-full h-[200px] overflow-hidden flex items-end justify-center">
+                <p
+                  ref={textTwoRef}
+                  className="-translate-y-50 text-[180px] text-white uppercase font-bold"
+                >
+                  a Human touch
+                </p>
+              </div>
+            </div>
+            {/* Flowing Text Strip */}
+            <div className="w-full h-[5vh] min-h-[44px] bg-white/30 text-white overflow-hidden flex items-center relative select-none">
+              <div className="flex shrink-0 animate-marquee items-center whitespace-nowrap">
+                {[...techItems, ...techItems].map((item, index) => (
+                  <div key={index} className="flex items-center">
+                    <span className="text-white text-lg sm:text-sm tracking-widest px-3 uppercase">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              <div
+                className="flex shrink-0 animate-marquee items-center whitespace-nowrap"
+                aria-hidden="true"
+              >
+                {[...techItems, ...techItems].map((item, index) => (
+                  <div key={`dup-${index}`} className="flex items-center">
+                    <span className="text-white text-lg sm:text-sm tracking-widest px-3 uppercase">
+                      {item}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Floating Cards Layer */}
+          {cardsData.map((card, index) => (
+            <WhatCard
+              key={card.id}
+              ref={(handle) => {
+                cardHandleRefs.current[index] = handle;
+              }}
+              card={card}
+            />
+          ))}
+        </div>
+      </section>
+    </>
   );
 };
 

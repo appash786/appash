@@ -4,6 +4,7 @@ import React, { useRef } from "react";
 import Skills3D from "@/components/ThreeJs/Skills3D";
 import PixelRevealText from "@/components/Text/PixelText";
 import { myPixelFont } from "@/lib/fonts/fonts";
+import FoldText from "../Text/FoldText";
 
 interface SkillSectionProps {
   text: string;
@@ -30,9 +31,22 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
             className="uppercase text-white font-bold tracking-widest"
             style={{ fontSize: "clamp(4rem, 20vw, 20rem)", lineHeight: 0.9 }}
             active={true}
-          /> */}
+          /> */}<p className="text-[20vw] BlackT font-semibold SkillHead ">                            <FoldText
+                    text={text}
+                    splitBy="char"
+                    hinge="top"
+                    trigger="scroll"
+                    duration={0.65}
+                    stagger={0.045}
+                    ease="power3.out"
+                    perspective={700}
+                    creaseShading={0.55}
+                    fontSize=""
+                    fontWeight={800}
+                    color="BlackT"
+                  /></p>
 
-          <p className="text-[20vw] HeroText font-bold SkillHead ">{text}</p>
+
         </div>
       </div>
 

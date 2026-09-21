@@ -1,48 +1,43 @@
 "use client";
 
 import Image from "next/image";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import TextType from "../Text/TextType";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 const Me = () => {
   const sectionRef = useRef<HTMLElement>(null);
-  const topPathRef = useRef<SVGPathElement>(null);
-  const bottomPathRef = useRef<SVGPathElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const clipPathRef = useRef<SVGPathElement>(null);
+  const squareTopRef = useRef<HTMLDivElement>(null);
+  const squareBottomRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const bgRef = useRef<HTMLImageElement>(null);
+
+  const [startTyping, setStartTyping] = useState(false);
+
   useGSAP(
     () => {
-      if (!topPathRef.current || !bottomPathRef.current) return;
-
-      // Top mask: a white rectangle covering the strip 0..80, whose BOTTOM
-      // edge (the boundary visible against the red below it) is a single
-      // quadratic curve from (0,80) to (1000,80) with control point
-      // (500, controlY). At controlY=80 the curve is mathematically flat
-      // (coincides with the straight baseline). Animating controlY UP
-      // (past 80) dips the boundary DOWN in the middle — red recedes
-      // into a shallow dip at the top.
-      const topPath = (controlY: number) =>
-        `M0,0 L1000,0 L1000,80 Q500,${controlY} 0,80 Z`;
-
-      // Bottom mask: mirrors this at the section's bottom edge. Its TOP
-      // edge is the visible boundary, anchored at (0,0) and (1000,0), so
-      // its flat baseline is controlY=0. Animating controlY NEGATIVE
-      // (above the baseline) bows the boundary UPWARD in the middle —
-      // red bulges up into the white at the bottom.
-      const bottomPath = (controlY: number) =>
-        `M0,80 L1000,80 L1000,0 Q500,${controlY} 0,0 Z`;
+      const getMeClipPath = (topY: number, bottomY: number) => {
+        const topCtrl = (topY / 1000).toFixed(4);
+        const bottomCtrl = ((1000 + bottomY) / 1000).toFixed(4);
+        return `M 0,0.08 Q 0.5,${topCtrl} 1,0.08 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
+      };
 
       const bendState = { topY: 80, bottomY: 0 };
-      // Tune these two to adjust how deep each bend curves at full scroll.
-      const TOP_BENT = 152;
-      const BOTTOM_BENT = -72;
+      const TOP_BENT = 230;
+      const BOTTOM_BENT = -150;
 
       const applyBend = () => {
-        topPathRef.current?.setAttribute("d", topPath(bendState.topY));
-        bottomPathRef.current?.setAttribute("d", bottomPath(bendState.bottomY));
+        if (clipPathRef.current) {
+          clipPathRef.current.setAttribute(
+            "d",
+            getMeClipPath(bendState.topY, bendState.bottomY),
+          );
+        }
       };
 
       const prefersReducedMotion = window.matchMedia(
@@ -50,23 +45,28 @@ const Me = () => {
       ).matches;
 
       if (prefersReducedMotion) {
-        // Skip the scroll-scrub entirely and land on the fully bent state.
         bendState.topY = TOP_BENT;
         bendState.bottomY = BOTTOM_BENT;
         applyBend();
+        if (squareTopRef.current && squareBottomRef.current) {
+          gsap.set([squareTopRef.current, squareBottomRef.current], {
+            scale: 1,
+            opacity: 1,
+          });
+        }
+        setStartTyping(true);
         return;
       }
 
-      // Top bend: flat while the section is below the viewport, curves in
-      // as the section's top edge travels from the viewport bottom up to
-      // its vertical center — then stays bent (one-way, no reverse).
+      // Top bend: curves in as section enters
       gsap
         .timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top bottom",
-            end: "top center",
+            start: "top +=800",
+            end: "top top",
             scrub: 0.4,
+            markers: false,
           },
         })
         .to(bendState, {
@@ -75,25 +75,7 @@ const Me = () => {
           onUpdate: applyBend,
         });
 
-      // Bottom bend: flat while the section's bottom edge is still below
-      // the viewport, curves in as that edge rises from the viewport
-      // bottom up to viewport center.
-      gsap.fromTo(
-        containerRef.current,
-        {
-          y:200 ,
-        },
-        {
-          y:-50,
-          scrollTrigger:{
-            trigger: sectionRef.current,
-            start: "top bottom",
-            end: "top -=1000",
-            scrub: 0.4,
-            markers:true
-          }
-        },
-      );
+      // Bottom bend: mirrors top on exit
       gsap
         .timeline({
           scrollTrigger: {
@@ -110,92 +92,192 @@ const Me = () => {
         });
 
       applyBend();
+
+      // Rotated squares: scale in from 0 -> 1 as the section enters
+      if (squareTopRef.current && squareBottomRef.current) {
+        gsap.set([squareTopRef.current, squareBottomRef.current], {
+          scale: 0,
+          opacity: 0,
+        });
+
+        const squareTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top center",
+            end: "top 20%",
+          },
+        });
+
+        squareTl.fromTo(
+          [squareTopRef.current, squareBottomRef.current],
+          { scale: 0 },
+          {
+            scale: 1,
+            opacity: 1,
+            ease: "back.out(1.7)",
+            duration: 0.6,
+            stagger: 0.5,
+          },
+        );
+      }
+
+      // Typing animation trigger
+      ScrollTrigger.create({
+        trigger: sectionRef.current,
+        start: "top center",
+        onEnter: () => setStartTyping(true),
+      });
+
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: true,
+          },
+        })
+        .to([bgRef.current, squareBottomRef.current, squareTopRef.current], {
+          translateY: 120,
+          ease: "none",
+        });
+
+      gsap.to([contentRef.current], {
+        y: -80,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      });
     },
+
     { scope: sectionRef },
   );
 
   return (
     <section
       ref={sectionRef}
-      className="relative w-full bg-red-800  min-h-screen overflow-hidden"
+      className="relative w-full min-h-screen overflow-hidden"
     >
-      {/* Top bend mask */}
-      <div className="absolute top-0 left-0 w-full h-20 z-4 -translate-y-[1px]">
-        <svg
-          viewBox="0 0 1000 80"
-          preserveAspectRatio="none"
-          className="w-full h-full block overflow-visible"
-        >
-          <path
-            ref={topPathRef}
-            d="M0,0 L1000,0 L1000,80 L0,80 Z"
-            fill="white"
-          />
-        </svg>
+      {/* SVG ClipPath Definition for dynamic curved mask */}
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+        <defs>
+          <clipPath id="meClip" clipPathUnits="objectBoundingBox">
+            <path
+              ref={clipPathRef}
+              d="M 0,0.08 Q 0.5,0.08 1,0.08 L 1,0.92 Q 0.5,0.92 0,0.92 Z"
+            />
+          </clipPath>
+        </defs>
+      </svg>
+
+      {/* Clipped Red Background & Portrait Image (z-10, sits above TopographyBackground at z-5) */}
+      <div
+        className="absolute inset-0 z-10 w-full h-full bg-gradient-to-br from-red-600 to-red-700 pointer-events-none"
+        style={{ clipPath: "url(#meClip)", WebkitClipPath: "url(#meClip)" }}
+      >
+        <Image
+          src="/Assets/Images/Appash/image_1.jpg"
+          alt="Portrait of Appash"
+          fill
+          ref={bgRef}
+          unoptimized={true}
+          className="object-cover pointer-events-none"
+          sizes="(max-width: 768px) 100vw, 40vw"
+          priority
+        />
       </div>
-
-      <div ref={containerRef} className="relative z-10 max-w-[80%] z-[999]  mx-auto  md:px-12 pt-32 pb-32 grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-        <div>
-          <h2 className=" text-[6.5rem] uppercase z-7  leading-[0.95] text-white">
-            Heyy I&apos;m 
-            <br />
-            <span className="font-bold">Appash A S</span>
-          </h2>
-
-          <p className="mt-8 max-w-4xl text-white/85 text-sm md:text-[18px] leading-tight tracking-wide">
-            I&apos;m a Visual Director working across video editing, graphic
-            design, and frontend development. From cinematic edits to
-            interactive web builds, I turn raw ideas into visuals that connect —
-            blending storytelling, design, and code into one craft.
-          </p>
-
-          <div className="mt-16">
-            <p className="text-white/80 text-sm mb-3">
-              Follow me on social media
-            </p>
-            <div className="flex gap-3">
-              {["instagram", "youtube", "linkedin"].map((label) => (
-                <a
-                  key={label}
-                  href="#"
-                  aria-label={label}
-                  className="w-9 h-9 bg-white/90 hover:bg-white transition-colors rounded-sm"
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="relative flex justify-center  ">
-          <div className="relative w-[580px] h-[660px] -translate-y-14 bg-amber-300">
+      <div className="absolute z-10 flex justify-end h-screen w-full pointer-events-none">
+        <div className="w-[50%] relative z-10  h-full">
+          <div
+            ref={squareTopRef}
+            className="w-[230px] h-[340px] bg-amber-50 absolute border-solid border-[6px] border-red-50  overflow-hidden right-50 rotate-12 top-50"
+          >
             <Image
-              src="/ProfileMe.jpg"
+              src="/Assets/Images/Appash/ImagePc.jpg"
               alt="Portrait of Appash"
               fill
-              quality={100}
               unoptimized={true}
-              className="object-cover"
-              sizes="(max-width: 768px) 560px, z-6 640px"
+              className="z-6 object-cover "
+              sizes="(max-width: 768px) 100vw, 40vw"
+              priority
             />
           </div>
-          <div className="absolute -right-4 top-16 w-16 h-16 bg-white" />
-          <div className="absolute left-8 -bottom-8 w-14 h-14 bg-white" />
+          <div
+            ref={squareBottomRef}
+            className="w-[200px] h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 -rotate-12 bottom-35"
+          >
+            <Image
+              src="/Assets/Images/Appash/ImageViolin.jpg"
+              alt="Portrait of Appash"
+              fill
+              unoptimized={true}
+              className="z-6 object-cover "
+              sizes="(max-width: 768px) 100vw, 40vw"
+              priority
+            />
+          </div>
         </div>
       </div>
 
-      {/* Bottom bend mask */}
-      <div className="absolute bottom-0 left-0 w-full h-20 translate-y-[1px]">
-        <svg
-          viewBox="0 0 1000 80"
-          preserveAspectRatio="none"
-          className="w-full h-full block overflow-visible"
-        >
-          <path
-            ref={bottomPathRef}
-            d="M0,0 L1000,0 L1000,80 L0,80 Z"
-            fill="white"
+      <div className="relative z-10 w-full flex justify-center h-full min-h-screen ">
+        {/* Full-bleed photo, left edge, no card/background */}
+
+        {/* Centered text column */}
+        <div className=" md:order-2 flex flex-col items-center justify-center text-center px-6 py-16 md:py-24">
+          <div ref={contentRef} className="flex justify-between mt-30 flex-col">
+            <div className="flex flex-col items-center justify-center  h-[90%]">
+              <h3 className="font-sans mb-2 font-semibold uppercase text-[6rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">Hello, </h3>
+              <TextType
+                as="h2"
+                text={["I'm Appash"]}
+                startTyping={startTyping}
+                loop={false}
+                typingSpeed={100}
+                showCursor={true}
+                cursorCharacter="|"
+                className="font-sans font-semibold uppercase text-[6rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
+              />
+
+              <p className="mt-5 max-w-xl text-white/85 text-xs md:text-sm leading-tight tracking-wide uppercase">
+                I&apos;m a Visual Director working across video editing, graphic
+                design, and frontend development — blending storytelling,
+                design, and code into visuals that connect.
+              </p>
+            </div>
+
+            {/* <div className="mb-10 ">
+              <p className="text-white/80 text-sm mb-3">
+                Follow me on social media
+              </p>
+              <div className="flex gap-3 justify-center">
+                {["instagram", "youtube", "linkedin"].map((label) => (
+                  <a
+                    key={label}
+                    href="#"
+                    aria-label={label}
+                    className="w-9 h-9 bg-white/90 hover:bg-white transition-colors rounded-sm"
+                  />
+                ))}
+              </div>
+            </div> */}
+          </div>
+        </div>
+
+        {/* Two rotated squares, right column */}
+        {/* <div className="order-3 relative hidden md:block">
+          <div
+            ref={squareTopRef}
+            className="absolute right-16 top-[18%] w-40 h-48 bg-gray-200 rotate-[-8deg] shadow-xl"
           />
-        </svg>
+          <div
+            ref={squareBottomRef}
+            className="absolute right-8 top-[48%] w-44 h-52 bg-gray-200 rotate-[6deg] shadow-xl"
+          />
+        </div> */}
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ProjectCard from "./ProjectCard";
+import { contain } from "three/src/extras/TextureUtils.js";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -37,29 +38,87 @@ const projectsData = [
 ];
 
 const Projects = () => {
+
+
   const containerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<(HTMLDivElement | null)[]>([]);
+  const clipPathRef = useRef<SVGPathElement | null>(null);
+
+  useGSAP(() => {
+    //Clip Path
+    const getMeClipPath = (topY: number, bottomY: number) => {
+      const topCtrl = (topY / 1000).toFixed(3);
+      const bottomCtrl = ((1000 + bottomY) / 1000).toFixed(4);
+      return `M 0,0 Q 0.5,${topCtrl} 1,0 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
+    };
+    const bendState = { topY: 0, bottomY: 0 };
+    const TOP_BENT = 70;
+    const BOTTOM_BENT = -110; //previous -150
+
+    const applyBend = () => {
+      if (clipPathRef.current) {
+        clipPathRef.current.setAttribute(
+          "d",
+          getMeClipPath(bendState.topY, bendState.bottomY),
+        );
+      }
+    };
+
+      // Bottom bend: mirrors top on exit
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "bottom bottom",
+            end: "bottom center",
+            scrub: 0.4,
+          },
+        })
+        .to(bendState, {
+          bottomY: BOTTOM_BENT,
+          ease: "none",
+          onUpdate: applyBend,
+        });
+
+      // Bottom bend: mirrors top on exit
+      applyBend();
 
 
+
+  },{scope:containerRef});
 
   return (
     <section
+    style={{ clipPath: "url(#meClip-3)", WebkitClipPath: "url(#meClip-3)" }}
       ref={containerRef}
-      className="relative w-screen overflow-hidden select-none py-12"
+      className="relative bg-black pb-40 w-screen overflow-hidden select-none py-12"
     >
-      <div className="w-full h-full flex flex-col relative z-0">
-        <div className="w-full border-t border-b py-5 border-amber-50/20 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <p className="text-white uppercase tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
+
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+        <defs>
+          <clipPath id="meClip-3" clipPathUnits="objectBoundingBox">
+            <path
+              ref={clipPathRef}
+              d="M 0,0.08 Q 0.5,0.08 1,0.08 L 1,0.92 Q 0.5,0.92 0,0.92 Z"
+            />
+          </clipPath>
+        </defs>
+      </svg>
+      <div className="w-full z-10 h-full flex flex-col relative ">
+        <div className="w-full border-t border-b py-5 border-black/10 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <p className="text-amber-50 uppercase tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
             PROJECTS
           </p>
 
-          <p className="w-full md:w-[30%] lg:w-[25%] text-white/80 text-left md:text-right text-base sm:text-lg md:text-xl font-light leading-relaxed">
-            Featured works showcasing interactive 3D web experiences and modern
-            applications.
-          </p>
+          <div className=" min-w-3xl">
+            <p className="w-full text-amber-50/60 max-w-xl text-left leading-tight  text-base sm:text-lg md:text-xl font-light">
+              Featured works showcasing interactive 3D web experiences and
+              modern applications.
+            </p>
+          </div>
         </div>
 
-        <div className="w-full mt-10 px-6 sm:px-12 md:px-16 flex flex-wrap gap-8 relative justify-between">
+        <div className="w-full mt-10  px-6 sm:px-12 md:px-16 flex flex-wrap gap-8 relative justify-between">
           {projectsData.map((project, index) => {
             return (
               <div
@@ -69,7 +128,7 @@ const Projects = () => {
                   cardsRef.current[index] = el;
                 }}
               >
-                <ProjectCard project={project} index={index}/>
+                <ProjectCard project={project} index={index} />
               </div>
             );
           })}

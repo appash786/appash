@@ -68,7 +68,7 @@ const Skills = () => {
 
       </div>
 
-      <div className="relative z-10">
+      <div className="relative">
         {SkillsList.map((Skill, idx) => (
           <SkillSection key={idx} text={Skill.title} model={Skill.model} />
         ))}

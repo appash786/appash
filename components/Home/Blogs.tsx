@@ -40,33 +40,17 @@ const Blogs = () => {
       image: "/Assets/Images/Appash/image_4.jpg",
       readTime: "10 min read",
       tags: ["Machine Learning", "Tech Trends", "OpenAI"],
-    },
-    {
-      id: 5,
-      text: "Freelancing",
-      title: "Pricing Your Projects: Time vs. Value",
-      image: "/Assets/Images/Appash/image_5.jpg",
-      readTime: "6 min read",
-      tags: ["Business", "Finance", "Clients"],
-    },
-    {
-      id: 6,
-      text: "Tutorials",
-      title: "Building Fast Websites with Next.js",
-      image: "/Assets/Images/Appash/image_6.jpg",
-      readTime: "12 min read",
-      tags: ["React", "Performance", "Web Dev"],
-    },
+    }
   ];
   return (
     <section className="relative w-screen overflow-hidden select-none py-12">
-      <div className="w-full h-full flex flex-col relative z-0">
-        <div className="w-full border-t border-b py-5 border-amber-50/20 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <p className="text-white uppercase  tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
+      <div className="w-full h-full flex flex-col relative z-10">
+        <div className="w-full border-t border-b py-5 border-[#29221a46] px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <p className="BlackT uppercase  tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
             Blogs
           </p>
 
-          <p className="w-full md:w-[30%] lg:w-[25%] text-white/80 text-left md:text-right text-base sm:text-lg md:text-xl font-light leading-relaxed">
+          <p className="w-full BlackT md:w-[30%] lg:w-[25%] text-white/80 text-left md:text-right text-base sm:text-lg md:text-xl font-light leading-tight">
             Featured works showcasing interactive 3D web experiences and modern
             applications.
           </p>

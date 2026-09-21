@@ -2,6 +2,8 @@
 
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import FoldText from "../Text/FoldText";
+import BlockReveal from "../Text/BlockReveal";
 import {
   useRef,
   useMemo,
@@ -165,52 +167,38 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
       >
         {/* Layer 1 — background */}
         <Canvas
-          style={{ ...canvasStyle, zIndex: 1 }}
+          style={{ ...canvasStyle, zIndex: 1, pointerEvents: "none" }}
           camera={{ position: [0, 0, 5], fov: 75 }}
-          onCreated={({ gl }) => gl.setClearColor(0x000000, 1)}
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x000000, 1);
+            // r3f sets touch-action:none on the canvas element internally;
+            // override it so touch/wheel scroll events pass through to the page.
+            gl.domElement.style.touchAction = "auto";
+            gl.domElement.style.pointerEvents = "none";
+          }}
         >
           <Suspense fallback={null}>
             <BgScene onReady={onReady} />
           </Suspense>
         </Canvas>
 
-        {/* Layer 2 — big "APPASH" text */}
-        <div
-          className="hero-text-layer"
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 10,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            pointerEvents: "none",
-          }}
-        >
-          <p
-            className="text-white uppercase font-bold italic"
-            style={{
-              fontSize: "clamp(3.1rem, 60.6vw, 20.3rem)",
-              lineHeight: 0.95,
-            }}
-          >
-            appash
-          </p>
-        </div>
-
         {/* Layer 3 — foreground with depth parallax */}
         <Canvas
-          style={{ ...canvasStyle, zIndex: 20 }}
+          style={{ ...canvasStyle, zIndex: 20, pointerEvents: "none" }}
           camera={{ position: [0, 0, 5], fov: 75 }}
           gl={{ antialias: true, alpha: true }}
-          onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+          onCreated={({ gl }) => {
+            gl.setClearColor(0x000000, 0);
+            gl.domElement.style.touchAction = "auto";
+            gl.domElement.style.pointerEvents = "none";
+          }}
         >
           <Suspense fallback={null}>
             <FgScene mouse={mouse} onReady={onReady} cameraZ={cameraZ} />
           </Suspense>
         </Canvas>
 
-        {/* <div
+        <div
           className="hero-text-layer"
           style={{
             position: "absolute",
@@ -220,20 +208,70 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             alignItems: "end",
             justifyContent: "center",
             pointerEvents: "none",
-            marginBottom: ""
+            marginBottom: "",
           }}
         >
-          <p
-            className="text-white mb-10 z-22 text-3xl  "
-            style={{
-              fontSize: "",
-              lineHeight: 0.95,
-            }}
-          >
-            Creative Developer & Multimedia Designer
-          </p>
-          <div className="w-full h-45 bg-gradient-to-t from-black/40 via-black/0 to-transparent absolute z-21" />
-        </div> */}
+          {isReady && (
+            <div className="w-full  flex z-22 xl:justify-between justify-center items-center xl:flex-row flex-col xl:items-center h-[40vh]">
+              <div className="xl:w-[45%] w-full flex justify-center xl:justify-end ">
+                <h1 className="xl:text-6xl text-3xl  font-bold uppercase text-center italic ">
+                  <span className="float-right">
+                    {" "}
+                    <BlockReveal
+                      className=" text-black block"
+                      color="#A50000"
+                      delay={0.15}
+                      duration={1.2}
+                    >
+                      <p className=" text-white block mr-3">Kerala's best</p>
+                    </BlockReveal>
+                  </span>{" "}
+                  <br />
+                  <BlockReveal
+                    className=" text-black block"
+                    color="#A50000"
+                    delay={0.25}
+                    duration={1.2}
+                  >
+                    <span className="mr-15 text-white">website </span>
+                    <span className="text-white mr-2"> frontend</span>
+                  </BlockReveal>
+                  <br />
+
+                  <BlockReveal
+                    className=" text-black block"
+                    color="#A50000"
+                    delay={0.30}
+                    duration={1.2}
+                  >
+                    <span className="mr-10 text-white">Developer</span>
+                  </BlockReveal>
+                </h1>
+              </div>
+              <div className="xl:w-[45%] px-4 mt-4 xl:mt-0 mb-20  xl:mb-0 xl:px-0 ">
+                <div>
+                  <p className=" max-w-lg text-center xl:text-left text-white/80">
+                    This is looking very close to the reference — deep top bend,
+                    centered text, rotated squares fully scaled in on the right,
+                    and the photo bleeding on the left (currently gray
+                    placeholder). Let's check the scale-in mid-transition and the
+                    bottom bend
+                  </p>
+                  {/* <div className="flex mt-4 gap-5">
+                    <button className="bg-white px-6 py-2 font-medium text-black rounded-sm text-bl">
+                      Explore my work
+                    </button>
+                    <button className="bg-red-600 z-100 cursor-crosshair px-6 py-2 font-medium text-white rounded-sm text-bl ">
+                      Hire me
+                    </button>
+                  </div> */}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="w-full h-[70vh] bg-gradient-to-t from-black/70 via-black/0 to-transparent absolute z-21" />
+        </div>
       </div>
     </div>
   );
@@ -470,7 +508,8 @@ export default function Hero() {
               onComplete: () => {
                 // Hide pointed head cleanly
                 if (headRef.current) headRef.current.style.opacity = "0";
-                if (maskHeadRef.current) maskHeadRef.current.style.opacity = "0";
+                if (maskHeadRef.current)
+                  maskHeadRef.current.style.opacity = "0";
 
                 // Start infinite text marquee only after ribbon fully draws in
                 if (textRef.current && textPathRef.current) {
@@ -478,7 +517,9 @@ export default function Hero() {
                   try {
                     const total = textRef.current.getComputedTextLength();
                     if (total > 0) singleLoopLength = total / 5;
-                  } catch { /* fallback */ }
+                  } catch {
+                    /* fallback */
+                  }
 
                   gsap.fromTo(
                     textPathRef.current,
@@ -636,10 +677,10 @@ export default function Hero() {
       {/* This is the content behind that fades in at the end of the scroll */}
       <div
         ref={contentSectionRef}
-        className="h-screen w-full relative z-[60] grid grid-cols-[minmax(0,1fr)_30vw_minmax(0,1fr)] items-center pointer-events-none text-white px-4 md:px-10 opacity-0"
+        className="h-screen bg-am w-full relative z-[60] xl:grid flex justify-center   flex-col  xl:grid-cols-[minmax(0,1fr)_30vw_minmax(0,1fr)] items-center pointer-events-none text-white px-4 md:px-10 opacity-0"
       >
         {/* Left Column Text */}
-        <div className="flex flex-col justify-center items-end text-right pr-4 md:pr-10 pointer-events-auto min-w-0 w-full">
+        <div className="flex  flex-col justify-center items-end text-right pr-4 md:pr-10 pointer-events-auto min-w-0 w-full">
           <div className={`text-[5vw] md:text-[3vw] leading-[0.95] uppercase`}>
             <div className="whitespace-nowrap">
               <div
@@ -677,10 +718,10 @@ export default function Hero() {
         </div>
 
         {/* Center Space (Empty spacer matching width of the masked hero scene) */}
-        <div className="w-[30vw] h-full pointer-events-none" />
+        <div className="w-[30vw]  h-[40vh] xl:h-full pointer-events-none" />
 
         {/* Right Column Text */}
-        <div className="flex flex-col justify-center items-start text-left pl-4 md:pl-10 pointer-events-auto min-w-0 w-full">
+        <div className="flex  flex-col justify-center items-start text-left pl-4 md:pl-10 pointer-events-auto min-w-0 w-full">
           <div className={`text-[5vw] md:text-[3vw] leading-[0.95] uppercase`}>
             <div className="whitespace-nowrap">
               <div
@@ -716,27 +757,6 @@ export default function Hero() {
             </div>
           </div>
         </div>
-      </div>
-      <div className="w-full h-full  z-0 opacity-0  fixed top-0 left-0 ">
-        <PixelBlast
-          variant="square"
-          pixelSize={7}
-          color="#000000"
-          patternScale={8.5}
-          patternDensity={2}
-          pixelSizeJitter={1.05}
-          enableRipples
-          rippleSpeed={1}
-          rippleThickness={0.12}
-          rippleIntensityScale={1.5}
-          liquid={false}
-          liquidStrength={0.12}
-          liquidRadius={1.2}
-          liquidWobbleSpeed={5}
-          speed={0.25}
-          edgeFade={0.27}
-          transparent
-        />
       </div>
     </div>
   );

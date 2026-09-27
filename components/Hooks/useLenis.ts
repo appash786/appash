@@ -9,15 +9,15 @@ gsap.registerPlugin(ScrollTrigger);
 
 export default function useLenis() {
   useEffect(() => {
-    // Skip Lenis on touch/mobile devices — it sets touch-action:none which blocks native scroll
-    const isTouchDevice =
-      "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    if (isTouchDevice) return;
-
+    // html/body have overflow:hidden in globals.css, so native scroll is disabled.
+    // Lenis MUST run on all devices (including touch) to be the scroll driver.
+    // smoothTouch:false defers momentum/inertia to the browser on touch devices
+    // while still keeping ScrollTrigger in sync.
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+    
     });
 
     (window as any).__lenis = lenis;

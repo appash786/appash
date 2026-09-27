@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense, useCallback, useMemo, useRef } from "react";
+import React, { Suspense, useCallback, useEffect, useState, useMemo, useRef } from "react";
 import { Canvas, ThreeEvent } from "@react-three/fiber";
 import { useGLTF, Float, Center, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -22,8 +22,11 @@ function CameraModel({
   const clonedScene = useMemo(() => scene.clone(true), [scene]);
   const groupRef = useRef<THREE.Group>(null);
 
+
   useGSAP(() => {
+
     if (!groupRef.current || !triggerRef.current) return;
+
 
     const scrollTriggerConfig = {
       trigger: triggerRef.current,
@@ -153,7 +156,7 @@ function CameraModel({
           <group ref={dragRef}>
             <primitive
               object={clonedScene}
-              position={[0, 2, 0]}
+              position={[0, 1, 0]}
               rotation={[-0.5, -0.7, 3.1]}
               scale={1.1}
               onPointerDown={handlePointerDown}
@@ -177,10 +180,16 @@ interface Skills3DProps {
 }
 
 const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+        if(window.innerWidth < 768){
+      setIsMobile(true);
+    }
+  }, [])
   return (
-    <div className="w-full h-full absolute inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
+    <div className="w-full h-[50vh] xl:h-full bg-amber-00 absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
       <Canvas
-        camera={{ position: [0, 0, 18], fov: 45 }}
+        camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
         gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={null}>

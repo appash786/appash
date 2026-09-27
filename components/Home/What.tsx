@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import  { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -111,13 +111,13 @@ const What = () => {
     () => {
       if (!sectionRef.current) return;
 
-      const isMobile = window.innerWidth < 640;
-      const isTablet = window.innerWidth < 1024;
+      const isMobile = window.innerWidth < 768;
+      const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
 
-      const fanOffsetX = isMobile ? 110 : isTablet ? 180 : 260;
-      const rowOffsetX = isMobile ? 210 : isTablet ? 310 : 390;
-      const targetScale = isMobile ? 0.72 : 1;
-      const baseY = isMobile ? 40 : 60;
+      const fanOffsetX = isTablet ? 180 : 260;
+      const rowOffsetX = isTablet ? 310 : 390;
+      const targetScale = isTablet ? 0.85 : 1;
+      const baseY = isTablet ? 40 : 60;
 
       // --- Clip path bend (perf-critical: runs every scroll tick) ---
       const getMeClipPath = (topY: number, bottomY: number) => {
@@ -166,8 +166,8 @@ const What = () => {
         bgTl
           .fromTo(
             WhatBgImageRef.current,
-            { y: -340 },
-            { y: 350, ease: "none" },
+            { y: isMobile ? -80 : -100 },
+            { y: isMobile ? 100 : 350, ease: "none" },
             0,
           )
           .to(
@@ -181,10 +181,10 @@ const What = () => {
           );
       }
 
-      // 1. Initial pose matching fanned stack reference image
+      // 1. Initial pose / slide entrance
       gsap.fromTo(
         slideRef.current,
-        { translateY: 200 },
+        { translateY: isMobile ? 60 : 200 },
         {
           translateY: 0,
           ease: "expo.out",
@@ -198,47 +198,7 @@ const What = () => {
         },
       );
 
-      const h0 = cardHandleRefs.current[0]?.outerEl;
-      const h1 = cardHandleRefs.current[1]?.outerEl;
-      const h2 = cardHandleRefs.current[2]?.outerEl;
-
-      if (h0) {
-        gsap.set(h0, {
-          xPercent: -50,
-          yPercent: -50,
-          x: -fanOffsetX,
-          y: baseY,
-          rotationZ: -7,
-          scale: 1,
-          zIndex: 10,
-        });
-      }
-
-      if (h1) {
-        gsap.set(h1, {
-          xPercent: -50,
-          yPercent: -50,
-          x: 0,
-          y: baseY - 10,
-          rotationZ: 0,
-          scale: 1,
-          zIndex: 20,
-        });
-      }
-
-      if (h2) {
-        gsap.set(h2, {
-          xPercent: -50,
-          yPercent: -50,
-          x: fanOffsetX,
-          y: baseY,
-          rotationZ: 7,
-          scale: 1,
-          zIndex: 10,
-        });
-      }
-
-      // Background text entrance
+      // Background text entrance (both desktop & mobile)
       if (textOneRef.current && textTwoRef.current) {
         gsap.to([textOneRef.current, textTwoRef.current], {
           translateY: "0vh",
@@ -253,77 +213,161 @@ const What = () => {
         });
       }
 
-      // 2. Timeline to un-fan cards into a straight horizontal row (plays once)
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top center",
-          toggleActions: "play none none none",
-          once: true,
-        },
-      });
+      if (!isMobile) {
+        const h0 = cardHandleRefs.current[0]?.outerEl;
+        const h1 = cardHandleRefs.current[1]?.outerEl;
+        const h2 = cardHandleRefs.current[2]?.outerEl;
 
-      if (h0) {
-        tl.to(
-          h0,
-          {
-            x: -rowOffsetX,
+        if (h0) {
+          gsap.set(h0, {
+            xPercent: -50,
+            yPercent: -50,
+            x: -fanOffsetX,
             y: baseY,
-            rotationZ: 0,
-            duration: 0.9,
-            scale: targetScale,
-            ease: "power2.out",
-          },
-          0,
-        );
-      }
+            rotationZ: -7,
+            scale: 1,
+            zIndex: 10,
+          });
+        }
 
-      if (h1) {
-        tl.to(
-          h1,
-          {
+        if (h1) {
+          gsap.set(h1, {
+            xPercent: -50,
+            yPercent: -50,
             x: 0,
-            y: baseY,
+            y: baseY - 10,
             rotationZ: 0,
-            scale: targetScale,
-            duration: 0.9,
-            ease: "power2.out",
-          },
-          0,
-        );
-      }
+            scale: 1,
+            zIndex: 20,
+          });
+        }
 
-      if (h2) {
-        tl.to(
-          h2,
-          {
-            x: rowOffsetX,
+        if (h2) {
+          gsap.set(h2, {
+            xPercent: -50,
+            yPercent: -50,
+            x: fanOffsetX,
             y: baseY,
-            rotationZ: 0,
-            duration: 0.9,
-            scale: targetScale,
-            ease: "power2.out",
-          },
-          0,
-        );
-      }
+            rotationZ: 7,
+            scale: 1,
+            zIndex: 10,
+          });
+        }
 
-      // FLIP: after cards spread, each card flips one by one
-      [0, 1, 2].forEach((i) => {
-        const innerEl = cardHandleRefs.current[i]?.innerEl;
-        if (!innerEl) return;
-        tl.fromTo(
-          innerEl,
-          { rotateY: 0 },
-          {
-            rotateY: 180,
-            duration: 0.6,
-            ease: "power2.inOut",
-            onStart: () => cardHandleRefs.current[i]?.flip(),
+        // 2. Timeline to un-fan cards into a straight horizontal row
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top center",
+            toggleActions: "play none none none",
           },
-          i === 0 ? "+=0.2" : ">-0.3",
-        );
-      });
+        });
+
+        if (h0) {
+          tl.to(
+            h0,
+            {
+              x: -rowOffsetX,
+              y: baseY,
+              rotationZ: 0,
+              duration: 0.9,
+              scale: targetScale,
+              ease: "power2.out",
+            },
+            0,
+          );
+        }
+
+        if (h1) {
+          tl.to(
+            h1,
+            {
+              x: 0,
+              y: baseY,
+              rotationZ: 0,
+              scale: targetScale,
+              duration: 0.9,
+              ease: "power2.out",
+            },
+            0,
+          );
+        }
+
+        if (h2) {
+          tl.to(
+            h2,
+            {
+              x: rowOffsetX,
+              y: baseY,
+              rotationZ: 0,
+              duration: 0.9,
+              scale: targetScale,
+              ease: "power2.out",
+            },
+            0,
+          );
+        }
+
+        // FLIP: after cards spread, each card flips one by one
+        [0, 1, 2].forEach((i) => {
+          const innerEl = cardHandleRefs.current[i]?.innerEl;
+          if (!innerEl) return;
+          tl.fromTo(
+            innerEl,
+            { rotateY: 0 },
+            {
+              rotateY: 180,
+              duration: 0.6,
+              ease: "power2.inOut",
+              onStart: () => cardHandleRefs.current[i]?.flip(),
+              onReverseComplete: () => cardHandleRefs.current[i]?.unflip(),
+            },
+            i === 0 ? "+=0.2" : ">-0.3",
+          );
+        });
+      } else {
+        // Mobile: each card has an entrance animation and flips when its center hits the viewport center
+        [0, 1, 2].forEach((i) => {
+          const innerEl = cardHandleRefs.current[i]?.innerEl;
+          const outerEl = cardHandleRefs.current[i]?.outerEl;
+          if (!innerEl || !outerEl) return;
+
+          // Entrance fade & slight upward slide as card approaches
+          gsap.fromTo(
+            outerEl,
+            { y: 35, opacity: 0.4 },
+            {
+              y: 0,
+              opacity: 1,
+              duration: 0.6,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: outerEl,
+                start: "top 85%",
+                toggleActions: "play none none reverse",
+              },
+            },
+          );
+
+          // Card flip triggered when card hits the center of the viewport
+          gsap.fromTo(
+            innerEl,
+            { rotateY: 0 },
+            {
+              rotateY: 180,
+              duration: 0.7,
+              ease: "power2.inOut",
+              onStart: () => cardHandleRefs.current[i]?.flip(),
+              onReverseComplete: () => cardHandleRefs.current[i]?.unflip(),
+              scrollTrigger: {
+                trigger: outerEl,
+                start: "top center",
+                toggleActions: "play none none reverse",
+              },
+            },
+          );
+        });
+      }
     },
     { scope: sectionRef },
   );
@@ -352,15 +396,15 @@ const What = () => {
             zIndex: 10,
             willChange: "clip-path",
           }}
-          className="relative w-full overflow-hidden aspect-[21/9] flex justify-center items-center"
+          className="relative w-full overflow-hidden aspect-4/5 xl:aspect-[21/9] flex justify-center items-center"
           ref={WhatBgRef}
         >
           <Image
             ref={WhatBgImageRef}
             src="/Assets/Images/Appash/BgImage-5.jpg"
-            className="w-full h-full object-cover scale-125 will-change-transform"
+            className="w-full h-full object-cover xl:scale-125  will-change-transform"
             fill
-            sizes="100vw"
+            sizes="100vw" 
             quality={75}
             alt="BG Image"
           />
@@ -368,41 +412,41 @@ const What = () => {
       </section>
       <section
         ref={sectionRef}
-        className="relative w-screen h-screen overflow-hidden select-none"
+        className="relative w-full md:w-screen min-h-screen md:h-screen bg-black md:overflow-hidden select-none"
       >
         <div className="absolute inset-0 w-full h-full bg-gradient-to-br bg-black pointer-events-none" />
 
         <div
           ref={slideRef}
-          className="w-screen h-screen overflow-hidden select-none will-change-transform"
+          className="w-full md:w-screen min-h-screen md:h-screen flex flex-col md:block select-none will-change-transform"
         >
           {/* Background Fixed Text Banner */}
-          <div className="w-full h-full flex flex-col relative">
-            <div className="w-full h-[450px] md:h-[500px] z-11 group border-[amber-50/20] px-20 flex-col flex gap-1">
-              <div className="w-full h-[200px] overflow-hidden">
+          <div className="w-full md:h-full flex  flex-col relative pt-8 md:pt-0">
+            <div className="w-full xl:h-[450px] justify-center md:h-[500px] 0 z-11 group px-2 sm:px-12 xl:px-20 flex-col flex xl:gap-1">
+              <div className="w-full xl:h-[160px]  flex justify-end   overflow-hidden">
                 <p
                   ref={textOneRef}
-                  className="translate-y-50 z-100 text-[180px] text-white uppercase"
+                  className="translate-y-50 z-100 text-4xl sm:text-6xl md:text-8xl xl:text-[180px] text-white uppercase font-bold tracking-tight"
                 >
                   Innovate with
                 </p>
               </div>
-              <div className="w-full h-[2px]"></div>
-              <div className="w-full h-[200px] overflow-hidden flex items-end justify-center">
+              <div className="w-full hidden   xl:block h-1 md:h-2 bg xl:h-[1px]"></div>
+              <div className="w-full xl:h-[160px]   overflow-hidden flex  items-end">
                 <p
                   ref={textTwoRef}
-                  className="-translate-y-50 text-[180px] text-white uppercase font-bold"
+                  className="-translate-y-50 text-4xl sm:text-6xl md:text-8xl xl:text-[180px] text-white uppercase font-bold tracking-tight"
                 >
                   a Human touch
                 </p>
               </div>
             </div>
             {/* Flowing Text Strip */}
-            <div className="w-full h-[5vh] min-h-[44px] bg-white/30 text-white overflow-hidden flex items-center relative select-none">
+            <div className="w-full mt-6 md:mt-12 xl:mt-0 xl:h-[5vh] xl:min-h-[44px] py-2 md:py-0 bg-white/10 border-y border-white/10 text-white overflow-hidden flex items-center relative select-none">
               <div className="flex shrink-0 animate-marquee items-center whitespace-nowrap">
                 {[...techItems, ...techItems].map((item, index) => (
                   <div key={index} className="flex items-center">
-                    <span className="text-white text-lg sm:text-sm tracking-widest px-3 uppercase">
+                    <span className="text-white xl:text-lg text-xs sm:text-sm tracking-widest xl:px-3 px-2 uppercase">
                       {item}
                     </span>
                   </div>
@@ -424,15 +468,17 @@ const What = () => {
           </div>
 
           {/* Floating Cards Layer */}
-          {cardsData.map((card, index) => (
-            <WhatCard
-              key={card.id}
-              ref={(handle) => {
-                cardHandleRefs.current[index] = handle;
-              }}
-              card={card}
-            />
-          ))}
+          <div className="relative md:absolute md:inset-0 flex flex-col md:block items-center justify-center gap-6 my-10 md:my-0 md:h-screen pointer-events-auto">
+            {cardsData.map((card, index) => (
+              <WhatCard
+                key={card.id}
+                ref={(handle) => {
+                  cardHandleRefs.current[index] = handle;
+                }}
+                card={card}
+              />
+            ))}
+          </div>
         </div>
       </section>
     </>

@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 // Dynamically import Topography to avoid SSR issues (it uses WebGL)
@@ -19,9 +19,7 @@ const Topography = dynamic(
  */
 export default function TopographyBackground() {
   // scroll-driven props
-  const [scale, setScale] = useState(1.0);
-  const [morphAmount, setMorphAmount] = useState(3.0);
-  const [opacity, setOpacity] = useState(0.72);
+
   const rafRef = useRef<number>(0);
   const scrollYRef = useRef(0);
   const currentScaleRef = useRef(1.0);
@@ -56,9 +54,6 @@ export default function TopographyBackground() {
       currentMorphRef.current = lerp(currentMorphRef.current, targetMorph, EASE);
       currentOpacityRef.current = lerp(currentOpacityRef.current, targetOpacity, EASE);
 
-      setScale(parseFloat(currentScaleRef.current.toFixed(4)));
-      setMorphAmount(parseFloat(currentMorphRef.current.toFixed(4)));
-      setOpacity(parseFloat(currentOpacityRef.current.toFixed(4)));
 
       rafRef.current = requestAnimationFrame(tick);
     };

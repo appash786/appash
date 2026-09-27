@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -18,6 +18,16 @@ const Me = () => {
   const bgRef = useRef<HTMLImageElement>(null);
 
   const [startTyping, setStartTyping] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useGSAP(
     () => {
@@ -66,7 +76,6 @@ const Me = () => {
             start: "top +=800",
             end: "top top",
             scrub: 0.4,
-            markers: false,
           },
         })
         .to(bendState, {
@@ -180,12 +189,12 @@ const Me = () => {
         style={{ clipPath: "url(#meClip)", WebkitClipPath: "url(#meClip)" }}
       >
         <Image
-          src="/Assets/Images/Appash/image_1.jpg"
+          src={isMobile ? "/Assets/Images/Appash/MeMobile.jpg" : "/Assets/Images/Appash/image_1.jpg"}
           alt="Portrait of Appash"
           fill
           ref={bgRef}
           unoptimized={true}
-          className="object-cover pointer-events-none"
+          className="object-cover  pointer-events-none"
           sizes="(max-width: 768px) 100vw, 40vw"
           priority
         />
@@ -194,7 +203,7 @@ const Me = () => {
         <div className="w-[50%] relative z-10  h-full">
           <div
             ref={squareTopRef}
-            className="w-[230px] h-[340px] bg-amber-50 absolute border-solid border-[6px] border-red-50  overflow-hidden right-50 rotate-12 top-50"
+            className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50  overflow-hidden xl:right-50 rotate-12 xl:top-3/7  top-10 xl:left-2/5  right-10"
           >
             <Image
               src="/Assets/Images/Appash/ImagePc.jpg"
@@ -208,7 +217,7 @@ const Me = () => {
           </div>
           <div
             ref={squareBottomRef}
-            className="w-[200px] h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 -rotate-12 bottom-35"
+            className="w-[150px] h-[200px]  xl:w-[200px] xl:h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 xl:-rotate-12 top-10 right-10 xl:bottom-35"
           >
             <Image
               src="/Assets/Images/Appash/ImageViolin.jpg"
@@ -227,10 +236,12 @@ const Me = () => {
         {/* Full-bleed photo, left edge, no card/background */}
 
         {/* Centered text column */}
-        <div className=" md:order-2 flex flex-col items-center justify-center text-center px-6 py-16 md:py-24">
+        <div className=" md:order-2 flex flex-col items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
           <div ref={contentRef} className="flex justify-between mt-30 flex-col">
             <div className="flex flex-col items-center justify-center  h-[90%]">
-              <h3 className="font-sans mb-2 font-semibold uppercase text-[6rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">Hello, </h3>
+              <h3 className="font-sans mb-2 font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">
+                Hello,{" "}
+              </h3>
               <TextType
                 as="h2"
                 text={["I'm Appash"]}
@@ -239,7 +250,7 @@ const Me = () => {
                 typingSpeed={100}
                 showCursor={true}
                 cursorCharacter="|"
-                className="font-sans font-semibold uppercase text-[6rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
+                className="font-sans font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
               />
 
               <p className="mt-5 max-w-xl text-white/85 text-xs md:text-sm leading-tight tracking-wide uppercase">

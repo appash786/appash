@@ -1,10 +1,9 @@
-import React, { useRef } from "react";
-import FlowingMenu from "../Menu/FlowingMenu";
+import  { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import ProjectCard from "./ProjectCard";
-import { contain } from "three/src/extras/TextureUtils.js";
+
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -105,12 +104,12 @@ const Projects = () => {
         </defs>
       </svg>
       <div className="w-full z-10 h-full flex flex-col relative ">
-        <div className="w-full border-t border-b py-5 border-black/10 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="w-full border-t border-b py-5 border-black/10 px-4 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between  gap-3 xl:gap-6">
           <p className="text-amber-50 uppercase tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
             PROJECTS
           </p>
 
-          <div className=" min-w-3xl">
+          <div className=" xl:min-w-3xl">
             <p className="w-full text-amber-50/60 max-w-xl text-left leading-tight  text-base sm:text-lg md:text-xl font-light">
               Featured works showcasing interactive 3D web experiences and
               modern applications.
@@ -118,12 +117,12 @@ const Projects = () => {
           </div>
         </div>
 
-        <div className="w-full mt-10  px-6 sm:px-12 md:px-16 flex flex-wrap gap-8 relative justify-between">
+        <div className="w-full xl:mt-10  px-2 sm:px-12 md:px-16 flex gap-4 flex-wrap xl:gap-8 relative xl:justify-between">
           {projectsData.map((project, index) => {
             return (
               <div
                 key={index}
-                className="w-full md:w-[calc(50%-16px)]"
+                className="w-full  md:w-[calc(50%-16px)]"
                 ref={(el) => {
                   cardsRef.current[index] = el;
                 }}

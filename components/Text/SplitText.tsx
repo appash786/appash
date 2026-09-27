@@ -39,7 +39,8 @@ const SplitText: React.FC<SplitTextProps> = ({
   textAlign = 'center',
   onLetterAnimationComplete
 }) => {
-  const ref = useRef<HTMLParagraphElement>(null);
+  // Changed ref generic to HTMLElement to accommodate all tag types (h1-h6, p, span)
+  const ref = useRef<HTMLElement>(null);
   const animationCompletedRef = useRef(false);
   const onCompleteRef = useRef(onLetterAnimationComplete);
   const [fontsLoaded, setFontsLoaded] = useState<boolean>(false);
@@ -62,7 +63,6 @@ const SplitText: React.FC<SplitTextProps> = ({
   useGSAP(
     () => {
       if (!ref.current || !text || !fontsLoaded) return;
-      // Prevent re-animation if already completed
       if (animationCompletedRef.current) return;
       const el = ref.current as HTMLElement & {
         _rbsplitInstance?: GSAPSplitText;
@@ -114,11 +114,10 @@ const SplitText: React.FC<SplitTextProps> = ({
               stagger: delay / 1000,
               scrollTrigger: {
                 trigger: el,
-                start :"top 85%",
+                start: "top 85%",
                 once: true,
                 fastScrollEnd: true,
                 anticipatePin: 0.4,
-       
               },
               onComplete: () => {
                 animationCompletedRef.current = true;
@@ -165,12 +164,16 @@ const SplitText: React.FC<SplitTextProps> = ({
       willChange: 'transform, opacity'
     };
     const classes = `split-parent overflow-hidden inline-block whitespace-normal ${className}`;
-    const Tag = (tag || 'p') as React.ElementType;
 
-    return (
-      <Tag ref={ref} style={style} className={classes}>
-        {text}
-      </Tag>
+    // Replaced <Tag> JSX with React.createElement to bypass TS2745 dynamic component type errors
+    return React.createElement(
+      tag || 'p',
+      {
+        ref,
+        style,
+        className: classes
+      },
+      text
     );
   };
 

@@ -2,8 +2,7 @@
 
 import React, { useRef } from "react";
 import Skills3D from "@/components/ThreeJs/Skills3D";
-import PixelRevealText from "@/components/Text/PixelText";
-import { myPixelFont } from "@/lib/fonts/fonts";
+
 import FoldText from "../Text/FoldText";
 
 interface SkillSectionProps {
@@ -18,35 +17,28 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
     <section
       ref={containerRef}
       id={`Skills-${text}`}
-      className="relative w-screen h-screen flex items-center justify-center  overflow-hidden"
+      className="relative w-screen h-[50vh] xl:h-screen  flex xl:items-center xl:justify-center  overflow-hidden"
     >
       {/* Background Text Layer (behind the 3D canvas) */}
-      <div className="absolute inset-0  z-10 flex items-center justify-center pointer-events-none">
+      <div className="absolute xl:inset-0 w-full   z-10  flex items-center justify-center pointer-events-none">
         <div
           className={` flex mb-40 flex-col items-center justify-center text-center`}
         >
-          {/* <PixelRevealText
-            text={text}
-            gridSize={46}
-            className="uppercase text-white font-bold tracking-widest"
-            style={{ fontSize: "clamp(4rem, 20vw, 20rem)", lineHeight: 0.9 }}
-            active={true}
-          /> */}<p className="text-[20vw] BlackT font-semibold SkillHead ">                            <FoldText
-                    text={text}
-                    splitBy="char"
-                    hinge="top"
-                    trigger="scroll"
-                    duration={0.65}
-                    stagger={0.045}
-                    ease="power3.out"
-                    perspective={700}
-                    creaseShading={0.55}
-                    fontSize=""
-                    fontWeight={800}
-                    color="BlackT"
-                  /></p>
-
-
+          <p className="text-[20vw] BlackT font-semibold SkillHead ">
+            <FoldText
+              text={text}
+              splitBy="char"
+              hinge="top"
+              trigger="scroll"
+              duration={0.65}
+              stagger={0.045}
+              ease="power3.out"
+              perspective={700}
+              creaseShading={0.55}
+              fontWeight={800}
+              color="BlackT"
+            />
+          </p>
         </div>
       </div>
 

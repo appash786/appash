@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useLoader, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-import FoldText from "../Text/FoldText";
+
 import BlockReveal from "../Text/BlockReveal";
 import {
   useRef,
@@ -12,13 +12,12 @@ import {
   useCallback,
   useEffect,
 } from "react";
-import PixelRevealText from "@/components/Text/PixelText";
+
 import DecryptedText from "@/components/Text/DecryptedText";
-import { myPixelFont } from "@/lib/fonts/fonts";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
-import PixelBlast from "../PixelBlast";
+
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
 import "./Styles.css";
@@ -130,6 +129,26 @@ function FgScene({
 }
 
 export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
+  const [isMobile, setIsMobile] = useState(false);
+  const mobileBgLoaded = useRef(false);
+  const mobileFgLoaded = useRef(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mql.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mql.addEventListener("change", handler);
+    return () => mql.removeEventListener("change", handler);
+  }, []);
+
+  // Fire onReady for the mobile path once both images have loaded
+  const checkMobileReady = useCallback(() => {
+    if (mobileBgLoaded.current && mobileFgLoaded.current) {
+      onReady(); // call twice to satisfy readyCount >= 2
+      onReady();
+    }
+  }, [onReady]);
+
   const canvasStyle: React.CSSProperties = {
     position: "absolute",
     inset: 0,
@@ -165,38 +184,103 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           transformOrigin: "center center",
         }}
       >
-        {/* Layer 1 — background */}
-        <Canvas
-          style={{ ...canvasStyle, zIndex: 1, pointerEvents: "none" }}
-          camera={{ position: [0, 0, 5], fov: 75 }}
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 1);
-            // r3f sets touch-action:none on the canvas element internally;
-            // override it so touch/wheel scroll events pass through to the page.
-            gl.domElement.style.touchAction = "auto";
-            gl.domElement.style.pointerEvents = "none";
-          }}
-        >
-          <Suspense fallback={null}>
-            <BgScene onReady={onReady} />
-          </Suspense>
-        </Canvas>
+        {isMobile ? (
+          /* ─── Mobile: lightweight CSS images instead of Three.js ─── */
+          <>
+            {/* Layer 1 — background (CSS) */}
+            <div
+              style={{
+                ...canvasStyle,
+                zIndex: 1,
+                pointerEvents: "none",
+                background: "#000",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/BgMobile.jpg"
+                alt=""
+                onLoad={() => {
+                  mobileBgLoaded.current = true;
+                  checkMobileReady();
+                }}
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  objectPosition: "center center",
+                }}
+              />
+            </div>
 
-        {/* Layer 3 — foreground with depth parallax */}
-        <Canvas
-          style={{ ...canvasStyle, zIndex: 20, pointerEvents: "none" }}
-          camera={{ position: [0, 0, 5], fov: 75 }}
-          gl={{ antialias: true, alpha: true }}
-          onCreated={({ gl }) => {
-            gl.setClearColor(0x000000, 0);
-            gl.domElement.style.touchAction = "auto";
-            gl.domElement.style.pointerEvents = "none";
-          }}
-        >
-          <Suspense fallback={null}>
-            <FgScene mouse={mouse} onReady={onReady} cameraZ={cameraZ} />
-          </Suspense>
-        </Canvas>
+            {/* Layer 3 — foreground person (CSS), animated via .mobile-fg-scale */}
+            <div
+              className="mobile-fg-scale"
+              style={{
+                ...canvasStyle,
+                zIndex: 20,
+                pointerEvents: "none",
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "center",
+                transformOrigin: "center center",
+              }}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/appash_Full.png"
+                alt=""
+                onLoad={() => {
+                  mobileFgLoaded.current = true;
+                  checkMobileReady();
+                }}
+                style={{
+                  width: "auto",
+                  height: "100%",
+                  maxWidth: "none",
+                  objectFit: "contain",
+                  objectPosition: "center bottom",
+                }}
+              />
+            </div>
+          </>
+        ) : (
+          /* ─── Desktop: full Three.js with depth parallax ─── */
+          <>
+            {/* Layer 1 — background */}
+            <Canvas
+              style={{ ...canvasStyle, zIndex: 1, pointerEvents: "none" }}
+              camera={{ position: [0, 0, 5], fov: 75 }}
+              onCreated={({ gl }) => {
+                gl.setClearColor(0x000000, 1);
+                // r3f sets touch-action:none on the canvas element internally;
+                // override it so touch/wheel scroll events pass through to the page.
+                gl.domElement.style.touchAction = "auto";
+                gl.domElement.style.pointerEvents = "none";
+              }}
+            >
+              <Suspense fallback={null}>
+                <BgScene onReady={onReady} />
+              </Suspense>
+            </Canvas>
+
+            {/* Layer 3 — foreground with depth parallax */}
+            <Canvas
+              style={{ ...canvasStyle, zIndex: 20, pointerEvents: "none" }}
+              camera={{ position: [0, 0, 5], fov: 75 }}
+              gl={{ antialias: true, alpha: true }}
+              onCreated={({ gl }) => {
+                gl.setClearColor(0x000000, 0);
+                gl.domElement.style.touchAction = "auto";
+                gl.domElement.style.pointerEvents = "none";
+              }}
+            >
+              <Suspense fallback={null}>
+                <FgScene mouse={mouse} onReady={onReady} cameraZ={cameraZ} />
+              </Suspense>
+            </Canvas>
+          </>
+        )}
 
         <div
           className="hero-text-layer"
@@ -237,11 +321,10 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
                     <span className="text-white mr-2"> frontend</span>
                   </BlockReveal>
                   <br />
-
                   <BlockReveal
                     className=" text-black block"
                     color="#A50000"
-                    delay={0.30}
+                    delay={0.3}
                     duration={1.2}
                   >
                     <span className="mr-10 text-white">Developer</span>
@@ -254,8 +337,8 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
                     This is looking very close to the reference — deep top bend,
                     centered text, rotated squares fully scaled in on the right,
                     and the photo bleeding on the left (currently gray
-                    placeholder). Let's check the scale-in mid-transition and the
-                    bottom bend
+                    placeholder). Let's check the scale-in mid-transition and
+                    the bottom bend
                   </p>
                   {/* <div className="flex mt-4 gap-5">
                     <button className="bg-white px-6 py-2 font-medium text-black rounded-sm text-bl">
@@ -411,11 +494,15 @@ export default function Hero() {
         },
       });
       // 1. Morph Phase: Clip-path the mask wrapper to create the cropped box (duration 1.0)
+      const isMobile =
+        typeof window !== "undefined" && window.innerWidth <= 768;
       tl.fromTo(
         maskRef.current,
         { clipPath: "inset(0% 0% 0% 0% round 0px)" },
         {
-          clipPath: "inset(12% 35% 12% 35% round 0px)",
+          clipPath: isMobile
+            ? "inset(31% 8% 31% 8% round 0px)"
+            : "inset(12% 35% 12% 35% round 0px)",
           ease: "power2.inOut",
           duration: 1,
         },
@@ -436,17 +523,33 @@ export default function Hero() {
         );
       }
 
-      // 3. ZOOM EFFECT: Animate camera Z position to zoom out
-      tl.fromTo(
-        cameraZ.current,
-        { value: 5 },
-        {
-          value: 6.25,
-          ease: "power2.inOut", // 👈 Match this to the clipPath ease
-          duration: 1, // 👈 Match this to the clipPath duration (1)
-        },
-        0, // 👈 Start exactly when the clipPath starts
-      );
+      // 3. ZOOM EFFECT: On desktop animate camera Z; on mobile animate CSS scale
+      if (isMobile) {
+        const mobileFg = containerRef.current?.querySelector(".mobile-fg-scale");
+        if (mobileFg) {
+          tl.fromTo(
+            mobileFg,
+            { scale: .7 },
+            {
+              scale: 0.49, // visually matches cameraZ 5 → 10.25 zoom-out
+              ease: "power2.inOut",
+              duration: 1,
+            },
+            0,
+          );
+        }
+      } else {
+        tl.fromTo(
+          cameraZ.current,
+          { value: 5 },
+          {
+            value: 6.5,
+            ease: "power2.inOut", // 👈 Match this to the clipPath ease
+            duration: 1, // 👈 Match this to the clipPath duration (1)
+          },
+          0, // 👈 Start exactly when the clipPath starts
+        );
+      }
 
       // 4. Ribbon wipe: fire free-running when scroll hits 90% — not scrubbed
       if (pathRef.current) {
@@ -570,7 +673,7 @@ export default function Hero() {
     <div
       ref={containerRef}
       id="Hero"
-      className="relative mb-20  z-10 overflow-hidden"
+      className="relative mb-20 h-[90vh] xl:h-screen z-10 "
       onMouseMove={onMove}
     >
       {/* 

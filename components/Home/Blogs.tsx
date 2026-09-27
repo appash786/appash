@@ -1,13 +1,9 @@
-import React from "react";
-import FlowingMenu from "@/components/Menu/FlowingMenu";
+
 import Bloglist from "@/components/Cards/BlogList";
-import { useEffect, useState } from "react";
-import Image from "next/image";
-import LineBar from "../LineBar";
-import { div } from "three/src/nodes/math/OperatorNode.js";
+import { useState } from "react";
+
 const Blogs = () => {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
-  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+
   const BlogsData = [
     {
       id: 1,
@@ -45,7 +41,7 @@ const Blogs = () => {
   return (
     <section className="relative w-screen overflow-hidden select-none py-12">
       <div className="w-full h-full flex flex-col relative z-10">
-        <div className="w-full border-t border-b py-5 border-[#29221a46] px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="w-full border-t border-b py-5 border-[#29221a46] px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 xl:gap-6">
           <p className="BlackT uppercase  tracking-tight text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-[100px] leading-[0.95] text-left">
             Blogs
           </p>

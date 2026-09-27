@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import { useRef } from "react";
 import SkillSection from "./SkillSection";
 
 import gsap from "gsap";
@@ -59,14 +59,9 @@ const Skills = () => {
   );
 
   return (
-    <section ref={containerRef} className="relative  overflow-hidden">
+    <section ref={containerRef} className="relative -translate-y-20 xl:-translate-y-  overflow-hidden">
       {/* Background Particles Layer fixed to viewport and toggled by ScrollTrigger */}
-      <div
-        ref={particlesRef}
-        className="fixed inset-0 z-0 pointer-events-none opacity-0"
-      >
 
-      </div>
 
       <div className="relative">
         {SkillsList.map((Skill, idx) => (

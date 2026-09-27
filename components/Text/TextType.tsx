@@ -1,12 +1,38 @@
 'use client';
 
-import { useEffect, useRef, useState, createElement, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import { gsap } from 'gsap';
 
+export interface VariableSpeedConfig {
+  min: number;
+  max: number;
+}
 
-const TextType = ({
+export type TextTypeProps<T extends React.ElementType = 'div'> = {
+  text: string | string[];
+  as?: T;
+  typingSpeed?: number;
+  initialDelay?: number;
+  pauseDuration?: number;
+  deletingSpeed?: number;
+  loop?: boolean;
+  className?: string;
+  showCursor?: boolean;
+  hideCursorWhileTyping?: boolean;
+  cursorCharacter?: string;
+  cursorClassName?: string;
+  cursorBlinkDuration?: number;
+  textColors?: string[];
+  variableSpeed?: VariableSpeedConfig;
+  onSentenceComplete?: (sentence: string, index: number) => void;
+  startOnVisible?: boolean;
+  startTyping?: boolean;
+  reverseMode?: boolean;
+} & Omit<React.ComponentPropsWithoutRef<T>, 'text' | 'as'>;
+
+const TextType = <T extends React.ElementType = 'div'>({
   text,
-  as: Component = 'div',
+  as,
   typingSpeed = 50,
   initialDelay = 0,
   pauseDuration = 2000,
@@ -25,24 +51,31 @@ const TextType = ({
   startTyping = true,
   reverseMode = false,
   ...props
-}) => {
-  const [displayedText, setDisplayedText] = useState('');
-  const [currentCharIndex, setCurrentCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [isVisible, setIsVisible] = useState(!startOnVisible && startTyping);
-  const cursorRef = useRef(null);
-  const containerRef = useRef(null);
+}: TextTypeProps<T>) => {
+  // Cast to React.ComponentType<any> to prevent TS JSX children union collapse
+  const Component = (as || 'div') as React.ComponentType<any>;
 
-  const textArray = useMemo(() => (Array.isArray(text) ? text : [text]), [text]);
+  const [displayedText, setDisplayedText] = useState<string>('');
+  const [currentCharIndex, setCurrentCharIndex] = useState<number>(0);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [currentTextIndex, setCurrentTextIndex] = useState<number>(0);
+  const [isVisible, setIsVisible] = useState<boolean>(!startOnVisible && startTyping);
 
-  const getRandomSpeed = useCallback(() => {
+  const cursorRef = useRef<HTMLSpanElement>(null);
+  const containerRef = useRef<HTMLElement>(null);
+
+  const textArray = useMemo<string[]>(
+    () => (Array.isArray(text) ? text : [text]),
+    [text]
+  );
+
+  const getRandomSpeed = useCallback((): number => {
     if (!variableSpeed) return typingSpeed;
     const { min, max } = variableSpeed;
     return Math.random() * (max - min) + min;
   }, [variableSpeed, typingSpeed]);
 
-  const getCurrentTextColor = () => {
+  const getCurrentTextColor = (): string => {
     if (textColors.length === 0) return 'inherit';
     return textColors[currentTextIndex % textColors.length];
   };
@@ -51,7 +84,7 @@ const TextType = ({
     if (!startOnVisible || !containerRef.current) return;
 
     const observer = new IntersectionObserver(
-      entries => {
+      (entries: IntersectionObserverEntry[]) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
             setIsVisible(true);
@@ -65,9 +98,6 @@ const TextType = ({
     return () => observer.disconnect();
   }, [startOnVisible]);
 
-  // External control: flips isVisible on when a parent (e.g. a GSAP
-  // ScrollTrigger) sets startTyping to true. This is what lets Me.tsx
-  // start the typing animation exactly when the scroll trigger hits center.
   useEffect(() => {
     if (startTyping) {
       setIsVisible(true);
@@ -90,9 +120,11 @@ const TextType = ({
   useEffect(() => {
     if (!isVisible) return;
 
-    let timeout;
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     const currentText = textArray[currentTextIndex];
-    const processedText = reverseMode ? currentText.split('').reverse().join('') : currentText;
+    const processedText = reverseMode
+      ? currentText.split('').reverse().join('')
+      : currentText;
 
     const executeTypingAnimation = () => {
       if (isDeleting) {
@@ -138,8 +170,9 @@ const TextType = ({
       executeTypingAnimation();
     }
 
-    return () => clearTimeout(timeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
   }, [
     currentCharIndex,
     displayedText,
@@ -154,30 +187,37 @@ const TextType = ({
     isVisible,
     reverseMode,
     variableSpeed,
+    getRandomSpeed,
     onSentenceComplete
   ]);
 
   const shouldHideCursor =
-    hideCursorWhileTyping && (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
+    hideCursorWhileTyping &&
+    (currentCharIndex < textArray[currentTextIndex].length || isDeleting);
 
-  return createElement(
-    Component,
-    {
-      ref: containerRef,
-      className: `text-type ${className}`,
-      ...props
-    },
-    <span className="text-type__content" style={{ color: getCurrentTextColor() || 'inherit' }}>
-      {displayedText}
-    </span>,
-    showCursor && (
+  return (
+    <Component
+      ref={containerRef as any}
+      className={`text-type ${className}`}
+      {...props}
+    >
       <span
-        ref={cursorRef}
-        className={`text-type__cursor ${cursorClassName} ${shouldHideCursor ? 'text-type__cursor--hidden' : ''}`}
+        className="text-type__content"
+        style={{ color: getCurrentTextColor() || 'inherit' }}
       >
-        {cursorCharacter}
+        {displayedText}
       </span>
-    )
+      {showCursor && (
+        <span
+          ref={cursorRef}
+          className={`text-type__cursor ${cursorClassName} ${
+            shouldHideCursor ? 'text-type__cursor--hidden' : ''
+          }`}
+        >
+          {cursorCharacter}
+        </span>
+      )}
+    </Component>
   );
 };
 

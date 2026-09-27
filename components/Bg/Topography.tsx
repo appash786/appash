@@ -1,14 +1,52 @@
-﻿import { useEffect, useRef } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { Renderer, Program, Mesh, Triangle } from 'ogl';
 import './Topography.css';
 
-const hexToRgb = hex => {
+export type ColorMode = 'elevation' | 'uniform' | 'alternating';
+
+export interface TopographyProps {
+  lowColor?: string;
+  midColor?: string;
+  highColor?: string;
+  speed?: number;
+  morphAmount?: number;
+  morphSpeed?: number;
+  bands?: number;
+  thickness?: number;
+  scale?: number;
+  pixelSize?: number;
+  glow?: number;
+  colorMode?: ColorMode;
+  contrast?: number;
+  brightness?: number;
+  fillBands?: boolean;
+  opacity?: number;
+  grain?: boolean;
+  grainIntensity?: number;
+  mouseInteraction?: boolean;
+  mouseRadius?: number;
+  mouseStrength?: number;
+  lightMode?: boolean;
+  className?: string;
+}
+
+interface TopographyContext {
+  renderer: Renderer;
+  program: Program;
+  mesh: Mesh;
+}
+
+const hexToRgb = (hex: string): [number, number, number] => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   if (!result) return [1, 1, 1];
-  return [parseInt(result[1], 16) / 255, parseInt(result[2], 16) / 255, parseInt(result[3], 16) / 255];
+  return [
+    parseInt(result[1], 16) / 255,
+    parseInt(result[2], 16) / 255,
+    parseInt(result[3], 16) / 255
+  ];
 };
 
-const colorModeToFloat = mode => {
+const colorModeToFloat = (mode: ColorMode): number => {
   if (mode === 'uniform') return 1.0;
   if (mode === 'alternating') return 2.0;
   return 0.0;
@@ -146,16 +184,16 @@ void main() {
 }
 `;
 
-const ctxMap = new WeakMap();
+const ctxMap = new WeakMap<HTMLDivElement, TopographyContext>();
 
-const CTRL_INDICES = [
+const CTRL_INDICES: number[][] = [
   [1, -2, 3, -4],
   [9, -8, 7, -6],
   [5, 2, 5, -5],
   [-1, -3, 8, 9]
 ];
 
-const Topography = ({
+const Topography: React.FC<TopographyProps> = ({
   lowColor = '#5227FF',
   midColor = '#FF9FFC',
   highColor = '#FFFFFF',
@@ -180,7 +218,7 @@ const Topography = ({
   lightMode = false,
   className = ''
 }) => {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -196,11 +234,11 @@ const Topography = ({
 
     const gl = renderer.gl;
     gl.clearColor(0, 0, 0, 0);
-    const canvas = gl.canvas;
+    const canvas = gl.canvas as HTMLCanvasElement;
     canvas.style.width = '100%';
     canvas.style.height = '100%';
     canvas.style.display = 'block';
-    canvas.style.zIndex = 1;
+    canvas.style.zIndex = '1';
     container.appendChild(canvas);
 
     const geometry = new Triangle(gl);
@@ -249,7 +287,7 @@ const Topography = ({
       const w = Math.max(1, Math.floor(rect.width));
       const h = Math.max(1, Math.floor(rect.height));
       renderer.setSize(w, h);
-      const res = program.uniforms.iResolution.value;
+      const res = program.uniforms.iResolution.value as Float32Array;
       res[0] = gl.drawingBufferWidth;
       res[1] = gl.drawingBufferHeight;
       renderer.render({ scene: mesh });
@@ -264,7 +302,7 @@ const Topography = ({
     let mouseActive = 0;
     let mouseActiveTarget = 0;
 
-    const onMouseMove = e => {
+    const onMouseMove = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
       targetMouse[0] = (e.clientX - rect.left) / rect.width;
       targetMouse[1] = 1.0 - (e.clientY - rect.top) / rect.height;
@@ -276,11 +314,11 @@ const Topography = ({
     canvas.addEventListener('mousemove', onMouseMove);
     canvas.addEventListener('mouseleave', onMouseLeave);
 
-    const ctrlArrays = [
-      program.uniforms.uCtrlA.value,
-      program.uniforms.uCtrlB.value,
-      program.uniforms.uCtrlC.value,
-      program.uniforms.uCtrlD.value
+    const ctrlArrays: Float32Array[] = [
+      program.uniforms.uCtrlA.value as Float32Array,
+      program.uniforms.uCtrlB.value as Float32Array,
+      program.uniforms.uCtrlC.value as Float32Array,
+      program.uniforms.uCtrlD.value as Float32Array
     ];
 
     let raf = 0;
@@ -288,14 +326,14 @@ const Topography = ({
     let isPageVisible = !document.hidden;
     const t0 = performance.now();
 
-    const loop = t => {
+    const loop = (t: number) => {
       const time = (t - t0) * 0.001;
       const u = program.uniforms;
       u.iTime.value = time;
 
-      const ma = u.uMorphAmount.value;
-      const sp = u.uSpeed.value;
-      const msp = u.uMorphSpeed.value;
+      const ma = u.uMorphAmount.value as number;
+      const sp = u.uSpeed.value as number;
+      const msp = u.uMorphSpeed.value as number;
       for (let g = 0; g < 4; g++) {
         const arr = ctrlArrays[g];
         const idx = CTRL_INDICES[g];
@@ -307,8 +345,8 @@ const Topography = ({
 
       currentMouse[0] += 0.05 * (targetMouse[0] - currentMouse[0]);
       currentMouse[1] += 0.05 * (targetMouse[1] - currentMouse[1]);
-      u.uMouse.value[0] = currentMouse[0];
-      u.uMouse.value[1] = currentMouse[1];
+      (u.uMouse.value as Float32Array)[0] = currentMouse[0];
+      (u.uMouse.value as Float32Array)[1] = currentMouse[1];
 
       mouseActive += 0.05 * (mouseActiveTarget - mouseActive);
       u.uMouseActive.value = mouseActive;
@@ -328,9 +366,13 @@ const Topography = ({
     };
 
     const io = new IntersectionObserver(
-      ([entry]) => {
+      ([entry]: IntersectionObserverEntry[]) => {
         isVisible = entry.isIntersecting;
-        isVisible ? tryStart() : tryStop();
+        if (isVisible) {
+          tryStart();
+        } else {
+          tryStop();
+        }
       },
       { threshold: 0 }
     );
@@ -338,7 +380,11 @@ const Topography = ({
 
     const onVisibility = () => {
       isPageVisible = !document.hidden;
-      isPageVisible ? tryStart() : tryStop();
+      if (isPageVisible) {
+        tryStart();
+      } else {
+        tryStop();
+      }
     };
     document.addEventListener('visibilitychange', onVisibility);
 
@@ -418,5 +464,3 @@ const Topography = ({
 };
 
 export default Topography;
-
-

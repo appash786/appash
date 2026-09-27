@@ -130,8 +130,7 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
   return (
     <div
       ref={outerRef}
-      className={`absolute  ${card.initialLeft} ${card.width} ${card.height} [perspective:1000px] cursor-pointer  group`}
-      style={{ top: card.initialTop }}
+      className={`relative md:absolute md:left-1/2 md:top-[60%] ${card.width} ${card.height} [perspective:1000px] cursor-pointer group shrink-0`}
       onClick={toggleFlip}
     >
       <div

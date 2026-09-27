@@ -1,8 +1,5 @@
 "use client";
 import Hero from "@/components/ThreeJs/VisualHero";
-import PixelBlast from "@/components/Bg/PixelsBlast";
-import About from "@/components/Home/About";
-import Who from "@/components/Home/Who";
 import Projects from "@/components/Home/Projects";
 import Skills from "@/components/Home/Skills";
 import What from "@/components/Home/What";
@@ -16,19 +13,17 @@ import Footer from "@/components/Home/Footer";
 export default function Home() {
   return (
     <>
-    <TopographyBackground/>
-    <Hero/>
-    <Brief/>
-  <Me/>
-      <Skills/>
-    <What/>
-    <Projects/>
+      <TopographyBackground />
+      <Hero />
+      <Brief />
+      <Me />
+      <Skills />
+      <What />
+      <Projects />
 
-  
-    <BCta/>
-    
-      
-      <Cta/>
+      <BCta />
+
+      <Cta />
       <Blogs />
       <Footer />
     </>

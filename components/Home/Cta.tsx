@@ -8,29 +8,29 @@ const Cta = () => {
   useGSAP(() => {
     gsap.fromTo(
       ".form",
-      { y: 100 },
+      { y: 160 },
       {
-        y: -120,
+        y: -100,
         scrollTrigger: {
           trigger: CtaRef.current,
           start: "top bottom",
           end: "bottom top",
           scrub: true,
-          markers:true
+   
         },
       },
     );
   });
   return (
     <section ref={CtaRef} className="w-full z-10 h-[70vh] flex flex-col  relative ">
-      <div className="w-full border-t border-b py-5  border-black/10 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <p className="BlackT MoveText uppercase max-w-[60%] tracking-tight text-4xl sm:text-6xl md:text-6xl lg:text-8xl xl:text-[80px] leading-[0.95] text-left">
+      <div className="w-full border-t border-b py-5   border-black/10 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-start md:items-center justify-between xl:gap-6">
+        <p className="BlackT MoveText uppercase xl:max-w-[60%] tracking-tight text-4xl sm:text-6xl md:text-6xl lg:text-8xl xl:text-[80px] leading-[0.95] text-left">
           I’M here to talk about you, your company
         </p>
 
-        <div className=" min-w-[40%] flex justify-center  relative p-4 gap-5 h-full">
-          <div className="flex flex-col translate-y-20 absolute gap-4 form  bg-red-700  p-10">
-            <p className="w-full  text-amber-50  max-w-xl text-left leading-tight  text-base sm:text-lg md:text-xl font-light">
+        <div className=" xl:min-w-[40%]  flex justify-center  relative p-4 gap-5 h-full">
+          <div className="flex flex-col translate-y-20 xl:absolute gap-4 form  bg-red-700  p-10">
+            <p className="w-full  text-amber-50  xl:max-w-xl text-left leading-tight  text-base sm:text-lg md:text-xl font-light">
               Featured works showcasing interactive 3D web experiences and
               modern applications.
             </p>
@@ -63,7 +63,7 @@ const Cta = () => {
           </div>
         </div>
       </div>
-      <div className=" w-full h-50 px-15 mt-2 ">
+      <div className=" w-full h-50 px-15 mt-2 hidden ">
         <p className="w-full MoveText text-black/50  max-w-xl text-left leading-tight  text-base sm:text-lg md:text-sm font-light">
           Featured works showcasing interactive 3D web experiences and modern
           applications.

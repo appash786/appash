@@ -50,6 +50,7 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
           start: "top 90%",
           end: "bottom 20%",
           toggleActions: "play none none reverse",
+   
         },
       },
     );
@@ -70,7 +71,7 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
 
   return (
     <div
-      className="w-full h-[78%] relative   justify-center items-center flex rounded-xl "
+      className="w-full aspect-video xl:h-[78%] relative   justify-center items-center flex  rounded-lg xl:rounded-xl "
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >

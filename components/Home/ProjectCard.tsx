@@ -1,7 +1,7 @@
 "use client";
-import React, { forwardRef } from "react";
+import  { forwardRef } from "react";
 import ThreeDImage from "../Cards/Card";
-import { ArrowUpRight } from "lucide-react";
+
 import SplitText from "../Text/SplitText";
 interface ProjectCardProps {
   project: {
@@ -24,8 +24,8 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
       The actual animation targets the `.card-inner` div below.
       This prevents R3F from detecting layout resizes and glitching the canvas size!
     */
-      <div ref={ref} className="w-full h-[520px] sm:h-[580px]">
-        <div className="card-inner w-full h-full group relative flex  flex-col p-4 rounded-2xl  hover:border-white/20 transition-all duration-300">
+      <div ref={ref} className="w-full xl:h-[520px] sm:h-[580px]">
+        <div className="card-inner w-full h-full group relative flex  flex-col px-2 xl:p-4 rounded-2xl  hover:border-white/20 transition-all duration-300">
           {/* 3D Image Container */}
           {/* <div className="w-full h-[78%] relative overflow-hidden rounded-xl bg-black/40">
          <div className="absolute inset-0 w-full h-full bg-cover bg-center ">
@@ -42,14 +42,14 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
           </a>
         </div> */}
 
-          <ThreeDImage image={project.image} index={index} />
+          <ThreeDImage image={project.image} index={index ?? 0} />
 
           {/* Info Content */}
-          <div className="w-full   px-1 flex flex-col mt-2 justify-between">
-            <p className="text-amber-50/60 text-sm sm:text-base font-light tracking-wide">
+          <div className="w-full   px-1 flex flex-col mt-2 xl:justify-between">
+            <p className="text-amber-50/60 xl:text-sm text-xs sm:text-base font-light tracking-wide">
               {project.category}
             </p>
-            <div className="flex  items-center gap-1 overflow-hidden justify-betwee">
+            <div className="flex  xl:items-center gap-1 overflow-hidden justify-betwee">
               {/* <p className="text-white text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight group-hover:text-amber-200 transition-colors duration-300">
               {project.title}
             </p> */}
@@ -57,7 +57,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
               <SplitText
                 text={project.title}
                 tag="h1"
-                className="text-4xl text-amber-50  font-medium  -translate-x-10 group-hover:translate-x-0 transition-all duration-500  text-center"
+                className="xl:text-4xl text-2xl text-amber-50  font-medium  -translate-x-10 group-hover:translate-x-0 transition-all duration-500  text-center"
                 delay={50}
                 duration={0.5}
                 ease="power3.out"

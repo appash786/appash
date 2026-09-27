@@ -189,7 +189,7 @@ const Me = () => {
         style={{ clipPath: "url(#meClip)", WebkitClipPath: "url(#meClip)" }}
       >
         <Image
-          src={isMobile ? "/Assets/Images/Appash/MeMobile.jpg" : "/Assets/Images/Appash/image_1.jpg"}
+          src={isMobile ? "/Assets/Images/MeMobile.webp" : "/Assets/Images/image_1.webp"}
           alt="Portrait of Appash"
           fill
           ref={bgRef}
@@ -206,7 +206,7 @@ const Me = () => {
             className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50  overflow-hidden xl:right-50 rotate-12 xl:top-3/7  top-10 xl:left-2/5  right-10"
           >
             <Image
-              src="/Assets/Images/Appash/ImagePc.jpg"
+              src="/Assets/Images/ImagePc.webp"
               alt="Portrait of Appash"
               fill
               unoptimized={true}
@@ -220,7 +220,7 @@ const Me = () => {
             className="w-[150px] h-[200px]  xl:w-[200px] xl:h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 xl:-rotate-12 top-10 right-10 xl:bottom-35"
           >
             <Image
-              src="/Assets/Images/Appash/ImageViolin.jpg"
+              src="/Assets/Images/ImageViolin.webp"
               alt="Portrait of Appash"
               fill
               unoptimized={true}

@@ -7,6 +7,7 @@ import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
@@ -16,17 +17,14 @@ function CameraModel({
   triggerRef,
 }: {
   model: string;
-  triggerRef: React.RefObject<HTMLDivElement | null>;
+ triggerRef: React.RefObject<HTMLDivElement | null>;
 }) {
   const { scene } = useGLTF(model);
   const clonedScene = useMemo(() => scene.clone(true), [scene]);
   const groupRef = useRef<THREE.Group>(null);
 
-
   useGSAP(() => {
-
     if (!groupRef.current || !triggerRef.current) return;
-
 
     const scrollTriggerConfig = {
       trigger: triggerRef.current,
@@ -34,7 +32,7 @@ function CameraModel({
       toggleActions: "play none none reverse",
     };
 
-    // Animate scale from 0 to 1 via GSAP without hardcoding scale={0} in JSX
+    // Animate scale from 0 to 1
     gsap.fromTo(
       groupRef.current.scale,
       { x: 0, y: 0, z: 0 },
@@ -69,14 +67,16 @@ function CameraModel({
   const startPosRef = useRef({ x: 0, y: 0 });
   const elasticTweenRef = useRef<gsap.core.Tween | null>(null);
 
+// Define handler references outside so they can be cleaned up on unmount
+  const handlePointerMoveRef = useRef<((e: PointerEvent) => void) | null>(null);
+  const handlePointerUpRef = useRef<(() => void) | null>(null);
+  
   const handlePointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
     e.stopPropagation();
-    const clientX = e.clientX;
-    const clientY = e.clientY;
-    if (clientX === undefined || clientY === undefined) return;
+    if (e.clientX === undefined || e.clientY === undefined) return;
 
     isDraggingRef.current = true;
-    startPosRef.current = { x: clientX, y: clientY };
+    startPosRef.current = { x: e.clientX, y: e.clientY };
     document.body.style.cursor = "grabbing";
 
     if (elasticTweenRef.current) {
@@ -88,13 +88,11 @@ function CameraModel({
       const dx = moveEvent.clientX - startPosRef.current.x;
       const dy = moveEvent.clientY - startPosRef.current.y;
 
-      // Convert drag pixel deltas to 3D units
       const rawX = -dx * 0.012;
       const rawY = dy * 0.012;
 
-      // Soft clamp / limit maximum stretched distance (rubber-band resistance)
       const dist = Math.hypot(rawX, rawY);
-      const MAX_DRAG = 1.5; // Maximum base stretch limit in 3D units
+      const MAX_DRAG = 1.5;
       let targetX = rawX;
       let targetY = rawY;
 
@@ -106,13 +104,8 @@ function CameraModel({
         targetY = rawY * factor;
       }
 
-      dragRef.current.position.x = targetX;
-      dragRef.current.position.y = targetY;
-
-      // Subdued, subtle tilt rotation
-      dragRef.current.rotation.z = targetX * 0.04;
-      dragRef.current.rotation.x = targetY * 0.04;
-      dragRef.current.rotation.y = -targetX * 0.06;
+      dragRef.current.position.set(targetX, targetY, 0);
+      dragRef.current.rotation.set(targetY * 0.04, -targetX * 0.06, targetX * 0.04);
     };
 
     const handlePointerUp = () => {
@@ -140,8 +133,21 @@ function CameraModel({
       });
     };
 
+    // Store refs for unmount cleanup
+    handlePointerMoveRef.current = handlePointerMove;
+    handlePointerUpRef.current = handlePointerUp;
+
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
+  }, []);
+
+  // Cleanup event listeners and cursor if component unmounts mid-drag
+  useEffect(() => {
+    return () => {
+      if (handlePointerMoveRef.current) window.removeEventListener("pointermove", handlePointerMoveRef.current);
+      if (handlePointerUpRef.current) window.removeEventListener("pointerup", handlePointerUpRef.current);
+      document.body.style.cursor = "auto";
+    };
   }, []);
 
   return (
@@ -176,31 +182,37 @@ function CameraModel({
 
 interface Skills3DProps {
   model: string;
-  triggerRef: React.RefObject<HTMLDivElement | null>;
+  triggerRef: React.RefObject<HTMLDivElement | null>; // Fix: Added "| null" back with correct syntax
 }
-
 const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
   const [isMobile, setIsMobile] = useState(false);
+
+  // Fixed mobile detection to handle window resizing
   useEffect(() => {
-        if(window.innerWidth < 768){
-      setIsMobile(true);
-    }
-  }, [])
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    
+    // Set initial value
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   return (
-    <div className="w-full h-[50vh] xl:h-full bg-amber-00 absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
+    <div className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
       <Canvas
         camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
         gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={null}>
-          {/* Plane light (using directional light for reliable uniform front lighting) */}
           <directionalLight
             position={[4, -2, 4]}
             intensity={1}
             color={"#ffffff"}
           />
 
-          {/* Spotlight from behind */}
           <spotLight
             position={[0, 6, -8]}
             angle={0.8}
@@ -212,20 +224,15 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
             castShadow
           />
 
-          {/* Slight ambient light so it's not completely pitch black in the shadows */}
           <ambientLight intensity={1} />
 
           <CameraModel model={model} triggerRef={triggerRef} />
 
-          {/* Environment for reflections if the model has shiny PBR materials */}
           <Environment preset="city" environmentIntensity={2.5} />
         </Suspense>
       </Canvas>
     </div>
   );
 };
-
-// Preload the model
-useGLTF.preload("/Models/Camera.glb");
 
 export default Skills3D;

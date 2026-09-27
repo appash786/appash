@@ -30,7 +30,7 @@ const fgFrag = `${coverUVGlsl} uniform sampler2D uTexture; uniform sampler2D uDe
 
 function BgScene({ onReady }: { onReady: () => void }) {
   const { viewport, size } = useThree();
-  const [bgTex] = useLoader(THREE.TextureLoader, ["/bg.jpg"]);
+  const [bgTex] = useLoader(THREE.TextureLoader, ["/Assets/Images/bg.webp"]);
   const frameCount = useRef(0);
   const uniforms = useMemo(
     () => ({
@@ -83,8 +83,8 @@ function FgScene({
   );
 
   const [tex, depthTex] = useLoader(THREE.TextureLoader, [
-    "/appash.png",
-    "/appash_depth.png",
+    "/Assets/Images/appash.webp",
+    "/Assets/Depth-maps/appash_depth.webp",
   ]);
   const frameCount = useRef(0);
   const uniforms = useMemo(
@@ -198,7 +198,7 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/BgMobile.jpg"
+                src="/Assets/Images/BgMobile.webp"
                 alt=""
                 onLoad={() => {
                   mobileBgLoaded.current = true;
@@ -228,7 +228,7 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/appash_Full.png"
+                src="/Assets/Images/appash_Full.webp"
                 alt=""
                 onLoad={() => {
                   mobileFgLoaded.current = true;
@@ -298,7 +298,7 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           {isReady && (
             <div className="w-full  flex z-22 xl:justify-between justify-center items-center xl:flex-row flex-col xl:items-center h-[40vh]">
               <div className="xl:w-[45%] w-full flex justify-center xl:justify-end ">
-                <h1 className="xl:text-6xl text-3xl  font-bold uppercase text-center italic ">
+                <h1 className="xl:text-5xl text-3xl leading-7 xl:leading-11  font-bold uppercase text-center italic ">
                   <span className="float-right">
                     {" "}
                     <BlockReveal
@@ -333,7 +333,7 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
               </div>
               <div className="xl:w-[45%] px-4 mt-4 xl:mt-0 mb-20  xl:mb-0 xl:px-0 ">
                 <div>
-                  <p className=" max-w-lg text-center xl:text-left text-white/80">
+                  <p className=" max-w-lg text-center text-xs xl:text-left text-white/80">
                     This is looking very close to the reference — deep top bend,
                     centered text, rotated squares fully scaled in on the right,
                     and the photo bleeding on the left (currently gray
@@ -363,6 +363,12 @@ export function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
 // ─── Main Hero (The scroll logic) ───
 const CURVE_PATH_D =
   "M -150 260 C 180 160, 420 180, 720 440 C 980 680, 1220 700, 1550 670";
+const CURVE_PATH_S = 
+  "M 359.7 34.4 C 175.0 -18.0, 100.9 80.0, 100.9 163.8 C 100.9 300.0, 340.0 420.0, 247.1 602.6 C 200.6 693.9, 80.0 646.0, -5.2 646.0";
+
+const CURVE_PATH_S_REV = 
+  "M -5.2 646.0 C 80.0 646.0, 200.6 693.9, 247.1 602.6 C 340.0 420.0, 100.9 300.0, 100.9 163.8 C 100.9 80.0, 175.0 -18.0, 359.7 34.4";
+
 
 const heroTechItems = [
   "typescript",
@@ -397,7 +403,7 @@ export default function Hero() {
   const cameraZ = useRef({ value: 5 });
   const [revealActive, setRevealActive] = useState(false);
   const isAutoScrolling = useRef(false);
-
+  const [isMobile,setIsMobile] = useState(false)
   const toolsString = useMemo(() => {
     const single =
       heroTechItems.map((item) => item.toUpperCase()).join("  ✦  ") + "  ✦  ";
@@ -406,6 +412,10 @@ export default function Hero() {
 
   useGSAP(
     () => {
+        if(window.innerWidth <=768){
+        setIsMobile(true)
+      
+      }
       if (!isReady) return;
 
       const tl = gsap.timeline({
@@ -494,8 +504,7 @@ export default function Hero() {
         },
       });
       // 1. Morph Phase: Clip-path the mask wrapper to create the cropped box (duration 1.0)
-      const isMobile =
-        typeof window !== "undefined" && window.innerWidth <= 768;
+
       tl.fromTo(
         maskRef.current,
         { clipPath: "inset(0% 0% 0% 0% round 0px)" },
@@ -701,18 +710,18 @@ export default function Hero() {
         className="absolute inset-0 w-full h-screen pointer-events-none z-40 overflow-hidden"
       >
         <svg
-          className="w-full h-full"
-          viewBox="0 0 1440 900"
-          preserveAspectRatio="xMidYMid slice"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+  className="w-full h-full"
+  viewBox={isMobile ? "0 0 344 674" : "0 0 1440 900"}
+  preserveAspectRatio="xMidYMid slice"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
         >
           <defs>
             {/* Guide path for textPath and measurements */}
             <path
               id="hero-tool-curve"
               ref={pathRef}
-              d={CURVE_PATH_D}
+              d={isMobile ? CURVE_PATH_S_REV : CURVE_PATH_D}
               fill="none"
             />
 
@@ -720,7 +729,7 @@ export default function Hero() {
             <mask id="hero-wipe-mask" maskUnits="userSpaceOnUse">
               <path
                 ref={maskStrokeRef}
-                d={CURVE_PATH_D}
+               d={isMobile ? CURVE_PATH_S_REV : CURVE_PATH_D}
                 fill="none"
                 stroke="white"
                 strokeWidth="52"
@@ -738,10 +747,10 @@ export default function Hero() {
           <g mask="url(#hero-wipe-mask)">
             {/* Main solid black curved ribbon */}
             <path
-              d={CURVE_PATH_D}
+              d={isMobile ? CURVE_PATH_S_REV : CURVE_PATH_D}
               fill="none"
               stroke="#0a0a0a"
-              strokeWidth="36"
+              strokeWidth="30"
               strokeLinecap="butt"
             />
 

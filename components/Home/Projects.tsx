@@ -14,25 +14,25 @@ const projectsData = [
     title: "Ecommerce Website",
     category: "Web Development & Design",
     link: "#",
-    image: { img: "/car.jpg", depth: "/car-depth.png" },
+    image: { img: "/Assets/Images/car.webp", depth: "/Assets/Depth-maps/car-depth.webp" },
   },
   {
     title: "Portfolio Platform",
     category: "UI/UX & Interactive 3D",
     link: "#",
-    image: { img: "/spider.jpg", depth: "/spider-depth.png" },
+    image: { img: "/Assets/Images/spider.webp", depth: "/Assets/Depth-maps/spider-depth.webp" },
   },
   {
     title: "AI Dashboard",
     category: "Fullstack Application",
     link: "#",
-    image: { img: "/Editor.jpg", depth: "/Editor-depth.png" },
+    image: { img: "/Assets/Images/Editor.webp", depth: "/Assets/Depth-maps/Editor-depth.webp" },
   },
   {
     title: "Brand Mobile App",
     category: "Mobile App & Motion",
     link: "#",
-    image: { img: "/app.jpg", depth: "/app-depth.png" },
+    image: { img: "/Assets/Images/app.webp", depth: "/Assets/Depth-maps/app-depth.webp" },
   },
 ];
 

@@ -55,7 +55,7 @@ export default function ThreeImage({
   );
 
   const imgSrc = image?.img || "/ecom.jpg";
-  const depthSrc = image?.depth || "/ecom-depth.png";
+  const depthSrc = image?.depth || "/Assets/Depth-maps/ecom-depth.png";
 
   const [tex, depthTex] = useLoader(THREE.TextureLoader, [imgSrc, depthSrc]);
 

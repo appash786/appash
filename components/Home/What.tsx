@@ -401,7 +401,7 @@ const What = () => {
         >
           <Image
             ref={WhatBgImageRef}
-            src="/Assets/Images/Appash/BgImage-5.jpg"
+            src="/Assets/Images/BgImage-5.webp"
             className="w-full h-full object-cover xl:scale-125  will-change-transform"
             fill
             sizes="100vw" 

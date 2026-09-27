@@ -24,8 +24,9 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
         <div
           className={` flex mb-40 flex-col items-center justify-center text-center`}
         >
-          <p className="text-[20vw] BlackT font-semibold SkillHead ">
+          <p className="text-[5rem] xl:text-[20rem] BlackT font-semibold SkillHead ">
             <FoldText
+              className=' '
               text={text}
               splitBy="char"
               hinge="top"
@@ -36,6 +37,7 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
               perspective={700}
               creaseShading={0.55}
               fontWeight={800}
+              fontSize={"text-[1rem]"}
               color="BlackT"
             />
           </p>

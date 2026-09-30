@@ -1,6 +1,6 @@
 "use client";
 
-import  { useRef } from "react";
+import { useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -308,31 +308,25 @@ const What = () => {
           );
         }
 
-        // FLIP: after cards spread, each card flips one by one
+        // PIXEL SWAP: after cards spread, each card swaps one by one
         [0, 1, 2].forEach((i) => {
-          const innerEl = cardHandleRefs.current[i]?.innerEl;
-          if (!innerEl) return;
-          tl.fromTo(
-            innerEl,
-            { rotateY: 0 },
+          tl.to(
+            {}, // empty proxy: only used to place the swap on the timeline
             {
-              rotateY: 180,
-              duration: 0.6,
-              ease: "power2.inOut",
+              duration: 0.9, // matches PixelSwap duration
               onStart: () => cardHandleRefs.current[i]?.flip(),
               onReverseComplete: () => cardHandleRefs.current[i]?.unflip(),
             },
-            i === 0 ? "+=0.2" : ">-0.3",
+            i === 0 ? "+=0.2" : "<0.3", // each card starts 0.3s after the previous one
           );
         });
       } else {
         // Mobile: each card has an entrance animation and flips when its center hits the viewport center
         [0, 1, 2].forEach((i) => {
-          const innerEl = cardHandleRefs.current[i]?.innerEl;
           const outerEl = cardHandleRefs.current[i]?.outerEl;
-          if (!innerEl || !outerEl) return;
+          if (!outerEl) return;
 
-          // Entrance fade & slight upward slide as card approaches
+          // entrance animation stays exactly as it was
           gsap.fromTo(
             outerEl,
             { y: 35, opacity: 0.4 },
@@ -349,23 +343,13 @@ const What = () => {
             },
           );
 
-          // Card flip triggered when card hits the center of the viewport
-          gsap.fromTo(
-            innerEl,
-            { rotateY: 0 },
-            {
-              rotateY: 180,
-              duration: 0.7,
-              ease: "power2.inOut",
-              onStart: () => cardHandleRefs.current[i]?.flip(),
-              onReverseComplete: () => cardHandleRefs.current[i]?.unflip(),
-              scrollTrigger: {
-                trigger: outerEl,
-                start: "top center",
-                toggleActions: "play none none reverse",
-              },
-            },
-          );
+          // pixel swap when the card reaches the viewport center
+          ScrollTrigger.create({
+            trigger: outerEl,
+            start: "top center",
+            onEnter: () => cardHandleRefs.current[i]?.flip(),
+            onLeaveBack: () => cardHandleRefs.current[i]?.unflip(),
+          });
         });
       }
     },
@@ -404,7 +388,7 @@ const What = () => {
             src="/Assets/Images/BgImage-5.webp"
             className="w-full h-full object-cover xl:scale-125  will-change-transform"
             fill
-            sizes="100vw" 
+            sizes="100vw"
             quality={75}
             alt="BG Image"
           />

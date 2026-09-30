@@ -67,21 +67,7 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
   const showBack = isFlipped || gsapFlipped;
 
   // Track global scroll activity timestamp
-  useEffect(() => {
-    const updateScrollTime = () => {
-      lastScrollTimeRef.current = Date.now();
-    };
 
-    window.addEventListener("scroll", updateScrollTime, { passive: true });
-    window.addEventListener("wheel", updateScrollTime, { passive: true });
-    window.addEventListener("touchmove", updateScrollTime, { passive: true });
-
-    return () => {
-      window.removeEventListener("scroll", updateScrollTime);
-      window.removeEventListener("wheel", updateScrollTime);
-      window.removeEventListener("touchmove", updateScrollTime);
-    };
-  }, []);
 
   // When user-click-flipped to backside, flip back if user scrolls
   useEffect(() => {

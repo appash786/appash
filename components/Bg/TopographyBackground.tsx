@@ -1,6 +1,5 @@
 ﻿"use client";
 
-import { useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 
 // Dynamically import Topography to avoid SSR issues (it uses WebGL)
@@ -20,52 +19,7 @@ const Topography = dynamic(
 export default function TopographyBackground() {
   // scroll-driven props
 
-  const rafRef = useRef<number>(0);
-  const scrollYRef = useRef(0);
-  const currentScaleRef = useRef(1.0);
-  const currentMorphRef = useRef(3.0);
-  const currentOpacityRef = useRef(0.72);
 
-  useEffect(() => {
-    const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-
-    const onScroll = () => {
-      scrollYRef.current = window.scrollY;
-    };
-
-    const tick = () => {
-      const scrollY = scrollYRef.current;
-      const docH = Math.max(
-        document.documentElement.scrollHeight - window.innerHeight,
-        1
-      );
-      // 0 at top, 1 at bottom
-      const progress = Math.min(scrollY / docH, 1);
-
-      // Scale: 1.0 at top → 1.6 at bottom (gentle zoom in as you scroll)
-      const targetScale = 1.0 + progress * 0.6;
-      // MorphAmount: 3.0 at top → 5.5 at bottom (terrain shifts more)
-      const targetMorph = 3.0 + progress * 2.5;
-      // Opacity: starts at 0.72, subtly varies
-      const targetOpacity = 0.72 - progress * 0.1;
-
-      const EASE = 0.04; // lower = smoother/lazier follow
-      currentScaleRef.current = lerp(currentScaleRef.current, targetScale, EASE);
-      currentMorphRef.current = lerp(currentMorphRef.current, targetMorph, EASE);
-      currentOpacityRef.current = lerp(currentOpacityRef.current, targetOpacity, EASE);
-
-
-      rafRef.current = requestAnimationFrame(tick);
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    rafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      cancelAnimationFrame(rafRef.current);
-    };
-  }, []);
 
   return (
     <div
@@ -103,6 +57,7 @@ export default function TopographyBackground() {
         mouseInteraction={true}
         mouseRadius={0.28}
         mouseStrength={0.35}
+
       />
     </div>
   );

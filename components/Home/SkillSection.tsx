@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import Skills3D from "@/components/ThreeJs/Skills3D";
-
+import dynamic from "next/dynamic";
 import FoldText from "../Text/FoldText";
 
 interface SkillSectionProps {
@@ -12,7 +11,12 @@ interface SkillSectionProps {
 
 const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const Skills3D = dynamic(() => import("@/components/ThreeJs/Skills3D"), {
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full animate-pulse bg-neutral-900" />
+    ),
+  });
   return (
     <section
       ref={containerRef}
@@ -26,7 +30,7 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
         >
           <p className="text-[5rem] xl:text-[20rem] BlackT font-semibold SkillHead ">
             <FoldText
-              className=' '
+              className=" "
               text={text}
               splitBy="char"
               hinge="top"

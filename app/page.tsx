@@ -1,5 +1,5 @@
 "use client";
-import Hero from "@/components/ThreeJs/VisualHero";
+import Hero from "@/components/Home/Hero"
 import Projects from "@/components/Home/Projects";
 import Skills from "@/components/Home/Skills";
 import What from "@/components/Home/What";

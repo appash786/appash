@@ -29,6 +29,11 @@ const LineBar: React.FC<LineBarProps> = ({
     () => {
       if (!lineRef.current) return;
 
+      if (window.innerWidth < 768) {
+        gsap.set(lineRef.current, { scaleX: 1 });
+        return;
+      }
+
       gsap.fromTo(
         lineRef.current,
         {

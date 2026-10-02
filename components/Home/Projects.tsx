@@ -44,10 +44,15 @@ const Projects = () => {
   const clipPathRef = useRef<SVGPathElement | null>(null);
 
   useGSAP(() => {
+    const isMobile = window.innerWidth < 768;
+
     //Clip Path
     const getMeClipPath = (topY: number, bottomY: number) => {
-      const topCtrl = (topY / 1000).toFixed(3);
       const bottomCtrl = ((1000 + bottomY) / 1000).toFixed(4);
+      if (isMobile) {
+        return `M 0,0 L 1,0 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
+      }
+      const topCtrl = (topY / 1000).toFixed(3);
       return `M 0,0 Q 0.5,${topCtrl} 1,0 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
     };
     const bendState = { topY: 0, bottomY: 0 };
@@ -63,24 +68,30 @@ const Projects = () => {
       }
     };
 
-      // Bottom bend: mirrors top on exit
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "bottom bottom",
-            end: "bottom center",
-            scrub: 0.4,
-          },
-        })
-        .to(bendState, {
-          bottomY: BOTTOM_BENT,
-          ease: "none",
-          onUpdate: applyBend,
-        });
-
-      // Bottom bend: mirrors top on exit
+    if (isMobile) {
+      bendState.topY = TOP_BENT;
+      bendState.bottomY = BOTTOM_BENT;
       applyBend();
+      return;
+    }
+
+    // Bottom bend: mirrors top on exit
+    gsap
+      .timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "bottom bottom",
+          end: "bottom center",
+          scrub: 0.4,
+        },
+      })
+      .to(bendState, {
+        bottomY: BOTTOM_BENT,
+        ease: "none",
+        onUpdate: applyBend,
+      });
+
+    applyBend();
 
 
 

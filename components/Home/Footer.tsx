@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useRef } from "react";
 import gsap from "gsap";
@@ -50,23 +50,27 @@ const Footer = () => {
         }
       );
 
-      gsap.fromTo(
-        contentRef.current,
-        { y: 30, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          ease: "power3.out",
-          delay: 0.15,
-          scrollTrigger: {
-            trigger: footerRef.current,
-            start: "top 85%",
-            toggleActions: "play none none none",
-            once: true,
-          },
-        }
-      );
+      if (window.innerWidth < 768) {
+        if (contentRef.current) gsap.set(contentRef.current, { y: 0, opacity: 1 });
+      } else {
+        gsap.fromTo(
+          contentRef.current,
+          { y: 30, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 1,
+            ease: "power3.out",
+            delay: 0.15,
+            scrollTrigger: {
+              trigger: footerRef.current,
+              start: "top 85%",
+              toggleActions: "play none none none",
+              once: true,
+            },
+          }
+        );
+      }
     },
     { scope: footerRef }
   );

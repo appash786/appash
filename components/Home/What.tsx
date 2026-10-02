@@ -122,6 +122,9 @@ const What = () => {
       // --- Clip path bend (perf-critical: runs every scroll tick) ---
       const getMeClipPath = (topY: number, bottomY: number) => {
         const topCtrl = (topY / 1000).toFixed(3);
+        if (isMobile) {
+          return `M 0,0 Q 0.5,${topCtrl} 1,0 L 1,1 L 0,1 Z`;
+        }
         const bottomCtrl = ((1000 + bottomY) / 1000).toFixed(4);
         return `M 0,0 Q 0.5,${topCtrl} 1,0 L 1,0.92 Q 0.5,${bottomCtrl} 0,0.92 Z`;
       };
@@ -144,7 +147,7 @@ const What = () => {
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion || isMobile) {
         bendState.topY = TOP_BENT;
         bendState.bottomY = BOTTOM_BENT;
         applyBend();
@@ -166,8 +169,8 @@ const What = () => {
         bgTl
           .fromTo(
             WhatBgImageRef.current,
-            { y: isMobile ? -80 : -100 },
-            { y: isMobile ? 100 : 350, ease: "none" },
+            { y: -100 },
+            { y: 350, ease: "none" },
             0,
           )
           .to(
@@ -182,21 +185,25 @@ const What = () => {
       }
 
       // 1. Initial pose / slide entrance
-      gsap.fromTo(
-        slideRef.current,
-        { translateY: isMobile ? 60 : 200 },
-        {
-          translateY: 0,
-          ease: "expo.out",
-          duration: 1.5,
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top 80%",
-            toggleActions: "play none none none",
-            once: true,
+      if (!isMobile) {
+        gsap.fromTo(
+          slideRef.current,
+          { translateY: 200 },
+          {
+            translateY: 0,
+            ease: "expo.out",
+            duration: 1.5,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 80%",
+              toggleActions: "play none none none",
+              once: true,
+            },
           },
-        },
-      );
+        );
+      } else if (slideRef.current) {
+        gsap.set(slideRef.current, { translateY: 0 });
+      }
 
       // Background text entrance (both desktop & mobile)
       if (textOneRef.current && textTwoRef.current) {
@@ -321,35 +328,11 @@ const What = () => {
           );
         });
       } else {
-        // Mobile: each card has an entrance animation and flips when its center hits the viewport center
+        // Mobile: cards remain static without entrance movement or flip animations
         [0, 1, 2].forEach((i) => {
           const outerEl = cardHandleRefs.current[i]?.outerEl;
           if (!outerEl) return;
-
-          // entrance animation stays exactly as it was
-          gsap.fromTo(
-            outerEl,
-            { y: 35, opacity: 0.4 },
-            {
-              y: 0,
-              opacity: 1,
-              duration: 0.6,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: outerEl,
-                start: "top 85%",
-                toggleActions: "play none none reverse",
-              },
-            },
-          );
-
-          // pixel swap when the card reaches the viewport center
-          ScrollTrigger.create({
-            trigger: outerEl,
-            start: "top center",
-            onEnter: () => cardHandleRefs.current[i]?.flip(),
-            onLeaveBack: () => cardHandleRefs.current[i]?.unflip(),
-          });
+          gsap.set(outerEl, { y: 0, opacity: 1 });
         });
       }
     },

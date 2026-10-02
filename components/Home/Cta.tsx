@@ -6,6 +6,11 @@ gsap.registerPlugin(ScrollTrigger);
 const Cta = () => {
   const CtaRef = useRef(null);
   useGSAP(() => {
+    if (window.innerWidth < 768) {
+      gsap.set(".form", { y: 0 });
+      return;
+    }
+
     gsap.fromTo(
       ".form",
       { y: 160 },
@@ -16,7 +21,6 @@ const Cta = () => {
           start: "top bottom",
           end: "bottom top",
           scrub: true,
-   
         },
       },
     );

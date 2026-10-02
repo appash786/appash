@@ -50,11 +50,12 @@ const Me = () => {
         }
       };
 
+      const isMobile = window.innerWidth < 768;
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion || isMobile) {
         bendState.topY = TOP_BENT;
         bendState.bottomY = BOTTOM_BENT;
         applyBend();
@@ -64,7 +65,11 @@ const Me = () => {
             opacity: 1,
           });
         }
-        setStartTyping(true);
+        ScrollTrigger.create({
+          trigger: sectionRef.current,
+          start: "top center",
+          onEnter: () => setStartTyping(true),
+        });
         return;
       }
 
@@ -172,7 +177,7 @@ const Me = () => {
       className="relative w-full min-h-screen overflow-hidden"
     >
       {/* SVG ClipPath Definition for dynamic curved mask */}
-      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
+      <svg className="absolute w-0 h-0  pointer-events-none" aria-hidden="true">
         <defs>
           <clipPath id="meClip" clipPathUnits="objectBoundingBox">
             <path
@@ -236,7 +241,7 @@ const Me = () => {
         {/* Full-bleed photo, left edge, no card/background */}
 
         {/* Centered text column */}
-        <div className=" md:order-2 flex flex-col items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
+        <div className=" md:order-2 flex flex-col mb-15 items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
           <div ref={contentRef} className="flex justify-between mt-30 flex-col">
             <div className="flex flex-col items-center justify-center  h-[90%]">
               <h3 className="font-sans mb-2 font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">
@@ -253,7 +258,7 @@ const Me = () => {
                 className="font-sans font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
               />
 
-              <p className="mt-5 max-w-xl text-white/85 text-xs md:text-sm leading-tight tracking-wide uppercase">
+              <p className="mt-2 max-w-xl text-white/85 text-xs md:text-sm leading-tight tracking-wide uppercase">
                 I&apos;m a Visual Director working across video editing, graphic
                 design, and frontend development — blending storytelling,
                 design, and code into visuals that connect.

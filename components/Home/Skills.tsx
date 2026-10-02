@@ -34,6 +34,11 @@ const Skills = () => {
     () => {
       if (!containerRef.current || !particlesRef.current) return;
 
+      if (window.innerWidth < 768) {
+        gsap.set(particlesRef.current, { opacity: 0.4 });
+        return;
+      }
+
       ScrollTrigger.create({
         trigger: containerRef.current,
         start: "top bottom", // Fade in as soon as section top enters viewport

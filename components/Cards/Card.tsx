@@ -30,6 +30,14 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
   useGSAP(() => {
     if (!CanvaRef.current) return;
 
+    if (window.innerWidth < 768) {
+      gsap.set(CanvaRef.current, {
+        clipPath: "inset(0% 0% 0% 0% round 10px)",
+        translateX: "0%",
+      });
+      return;
+    }
+
     const isLeft = index % 2 === 0;
 
     gsap.fromTo(

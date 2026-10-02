@@ -15,9 +15,11 @@ if (typeof window !== "undefined") {
 function CameraModel({
   model,
   triggerRef,
+  isMobile = false,
 }: {
   model: string;
- triggerRef: React.RefObject<HTMLDivElement | null>;
+  triggerRef: React.RefObject<HTMLDivElement | null>;
+  isMobile?: boolean;
 }) {
   const { scene } = useGLTF(model);
   const clonedScene = useMemo(() => scene.clone(true), [scene]);
@@ -72,6 +74,7 @@ function CameraModel({
   const handlePointerUpRef = useRef<(() => void) | null>(null);
   
   const handlePointerDown = useCallback((e: ThreeEvent<PointerEvent>) => {
+    if (isMobile) return;
     e.stopPropagation();
     if (e.clientX === undefined || e.clientY === undefined) return;
 
@@ -139,7 +142,7 @@ function CameraModel({
 
     window.addEventListener("pointermove", handlePointerMove);
     window.addEventListener("pointerup", handlePointerUp);
-  }, []);
+  }, [isMobile]);
 
   // Cleanup event listeners and cursor if component unmounts mid-drag
   useEffect(() => {
@@ -165,11 +168,11 @@ function CameraModel({
               position={[0, 1, 0]}
               rotation={[-0.5, -0.7, 3.1]}
               scale={1.1}
-              onPointerDown={handlePointerDown}
-              onPointerOver={() => {
+              onPointerDown={isMobile ? undefined : handlePointerDown}
+              onPointerOver={isMobile ? undefined : () => {
                 if (!isDraggingRef.current) document.body.style.cursor = "grab";
               }}
-              onPointerOut={() => {
+              onPointerOut={isMobile ? undefined : () => {
                 if (!isDraggingRef.current) document.body.style.cursor = "auto";
               }}
             />
@@ -201,7 +204,13 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
   }, []);
 
   return (
-    <div className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
+    <div
+      className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20"
+      style={{
+        pointerEvents: isMobile ? "none" : "auto",
+        cursor: isMobile ? "default" : "grab",
+      }}
+    >
       <Canvas
         camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
         gl={{ alpha: true, antialias: true }}
@@ -226,7 +235,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
 
           <ambientLight intensity={1} />
 
-          <CameraModel model={model} triggerRef={triggerRef} />
+          <CameraModel model={model} triggerRef={triggerRef} isMobile={isMobile} />
 
           <Environment preset="city" environmentIntensity={2.5} />
         </Suspense>

@@ -27,6 +27,7 @@ export interface TopographyProps {
   mouseRadius?: number;
   mouseStrength?: number;
   lightMode?: boolean;
+  paused?: boolean; // Added: External pause flag (e.g. while hero is pinned)
   className?: string;
 }
 
@@ -216,20 +217,24 @@ const Topography: React.FC<TopographyProps> = ({
   mouseRadius = 0.3,
   mouseStrength = 0.4,
   lightMode = false,
+  paused = false,
   className = ''
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const pausedRef = useRef(paused);
+  pausedRef.current = paused;
 
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
+    // Optimized: Hardcoded dpr to 1 for high performance on high-density displays
     const renderer = new Renderer({
       webgl: 2,
       alpha: true,
       premultipliedAlpha: true,
       antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
+      dpr: 1
     });
 
     const gl = renderer.gl;
@@ -248,29 +253,29 @@ const Topography: React.FC<TopographyProps> = ({
       uniforms: {
         iTime: { value: 0 },
         iResolution: { value: new Float32Array([1, 1]) },
-        uSpeed: { value: 0.35 },
-        uMorphAmount: { value: 3.0 },
-        uMorphSpeed: { value: 0.05 },
-        uBands: { value: 2.0 },
-        uThickness: { value: 0.01 },
-        uScale: { value: 1.0 },
-        uPixelSize: { value: 1.0 },
-        uGlow: { value: 0.5 },
-        uColorMode: { value: 0.0 },
-        uContrast: { value: 3.0 },
-        uBrightness: { value: 1.0 },
-        uFillBands: { value: 0.0 },
-        uOpacity: { value: 1.0 },
-        uLightMode: { value: 0.0 },
-        uGrain: { value: 1.0 },
-        uGrainIntensity: { value: 0.05 },
-        uLow: { value: new Float32Array([1, 1, 1]) },
-        uMid: { value: new Float32Array([1, 1, 1]) },
-        uHigh: { value: new Float32Array([1, 1, 1]) },
+        uSpeed: { value: speed },
+        uMorphAmount: { value: morphAmount },
+        uMorphSpeed: { value: morphSpeed },
+        uBands: { value: bands },
+        uThickness: { value: thickness },
+        uScale: { value: scale },
+        uPixelSize: { value: pixelSize },
+        uGlow: { value: glow },
+        uColorMode: { value: colorModeToFloat(colorMode) },
+        uContrast: { value: contrast },
+        uBrightness: { value: brightness },
+        uFillBands: { value: fillBands ? 1.0 : 0.0 },
+        uOpacity: { value: opacity },
+        uLightMode: { value: lightMode ? 1.0 : 0.0 },
+        uGrain: { value: grain ? 1.0 : 0.0 },
+        uGrainIntensity: { value: grainIntensity },
+        uLow: { value: new Float32Array(hexToRgb(lowColor)) },
+        uMid: { value: new Float32Array(hexToRgb(midColor)) },
+        uHigh: { value: new Float32Array(hexToRgb(highColor)) },
         uMouse: { value: new Float32Array([0.5, 0.5]) },
-        uMouseEnabled: { value: 1.0 },
-        uMouseRadius: { value: 0.3 },
-        uMouseStrength: { value: 0.4 },
+        uMouseEnabled: { value: mouseInteraction ? 1.0 : 0.0 },
+        uMouseRadius: { value: mouseRadius },
+        uMouseStrength: { value: mouseStrength },
         uMouseActive: { value: 0.0 },
         uCtrlA: { value: new Float32Array([0, 0, 0, 0]) },
         uCtrlB: { value: new Float32Array([0, 0, 0, 0]) },
@@ -326,7 +331,22 @@ const Topography: React.FC<TopographyProps> = ({
     let isPageVisible = !document.hidden;
     const t0 = performance.now();
 
+    // 30 FPS Cap Configuration (~33.33ms per frame)
+    let lastFrameTime = 0;
+    const fpsInterval = 1000 / 30;
+
     const loop = (t: number) => {
+      raf = requestAnimationFrame(loop);
+
+      // Skip render calculations if paused (e.g. hero pinned), out of view, or tab hidden
+      if (pausedRef.current || !isVisible || !isPageVisible) return;
+
+      const elapsed = t - lastFrameTime;
+      if (elapsed < fpsInterval) return;
+
+      // Adjust lastFrameTime while accounting for drift
+      lastFrameTime = t - (elapsed % fpsInterval);
+
       const time = (t - t0) * 0.001;
       const u = program.uniforms;
       u.iTime.value = time;
@@ -352,11 +372,10 @@ const Topography: React.FC<TopographyProps> = ({
       u.uMouseActive.value = mouseActive;
 
       renderer.render({ scene: mesh });
-      raf = requestAnimationFrame(loop);
     };
 
     const tryStart = () => {
-      if (isVisible && isPageVisible && raf === 0) raf = requestAnimationFrame(loop);
+      if (raf === 0) raf = requestAnimationFrame(loop);
     };
     const tryStop = () => {
       if (raf !== 0) {
@@ -368,11 +387,6 @@ const Topography: React.FC<TopographyProps> = ({
     const io = new IntersectionObserver(
       ([entry]: IntersectionObserverEntry[]) => {
         isVisible = entry.isIntersecting;
-        if (isVisible) {
-          tryStart();
-        } else {
-          tryStop();
-        }
       },
       { threshold: 0 }
     );
@@ -380,11 +394,6 @@ const Topography: React.FC<TopographyProps> = ({
 
     const onVisibility = () => {
       isPageVisible = !document.hidden;
-      if (isPageVisible) {
-        tryStart();
-      } else {
-        tryStop();
-      }
     };
     document.addEventListener('visibilitychange', onVisibility);
 

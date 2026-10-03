@@ -1,6 +1,5 @@
 
 import Bloglist from "@/components/Cards/BlogList";
-import { useState } from "react";
 
 const Blogs = () => {
 
@@ -9,7 +8,7 @@ const Blogs = () => {
       id: 1,
       text: "Productivity", // Keeping this as your main category
       title: "10 Habits of Highly Effective Developers",
-      image: "/Assets/Images/image_1.jpg",
+      image: "/Assets/Images/image_1.webp",
       readTime: "5 min read",
       tags: ["Focus", "Career", "Habits"],
     },
@@ -17,7 +16,7 @@ const Blogs = () => {
       id: 2,
       text: "Web Design",
       title: "Mastering UI/UX: A Guide for Beginners",
-      image: "/Assets/Images/image_2.jpg",
+      image: "/Assets/Images/Image_2.webp",
       readTime: "8 min read",
       tags: ["Figma", "UI/UX", "CSS"],
     },
@@ -25,7 +24,7 @@ const Blogs = () => {
       id: 3,
       text: "Lifestyle",
       title: "How to Balance Remote Work and Personal Life",
-      image: "/Assets/Images/image_3.jpg",
+      image: "/Assets/Images/Image_3.webp",
       readTime: "4 min read",
       tags: ["Remote", "Mental Health", "Wellness"],
     },
@@ -33,7 +32,7 @@ const Blogs = () => {
       id: 4,
       text: "Technology",
       title: "The Future of AI in Modern Applications",
-      image: "/Assets/Images/image_2.jpg",
+      image: "/Assets/Images/Image_2.webp",
       readTime: "10 min read",
       tags: ["Machine Learning", "Tech Trends", "OpenAI"],
     }

@@ -3,16 +3,9 @@ import { useRef ,useState,useCallback , useMemo } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import dynamic from "next/dynamic";
+
 import DecryptedText from "@/components/Text/DecryptedText"
-const VisualHero = dynamic(() => import("@/components/ThreeJs/VisualHero"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-screen w-full bg-black flex items-center justify-center text-white">
-      <span className="text-sm">Loading Hero Scene...</span>
-    </div>
-  ),
-});
+import VisualHero from "@/components/ThreeJs/VisualHero";
 
 // ─── Main Hero (The scroll logic) ───
 const CURVE_PATH_D =
@@ -213,12 +206,12 @@ export default function Hero() {
         );
       }
 
-      // 4. Ribbon wipe: fire free-running when scroll hits 90% — not scrubbed
+// 4. Ribbon wipe: fire free-running when scroll hits 90% — not scrubbed
       if (pathRef.current) {
         const path = pathRef.current;
         const totalLength = path.getTotalLength();
 
-        // Reset mask to hidden
+        // Reset mask to hidden (Remove the isMobile check here so it applies to desktop too!)
         if (maskStrokeRef.current) {
           maskStrokeRef.current.style.strokeDasharray = `${totalLength}`;
           maskStrokeRef.current.style.strokeDashoffset = `${totalLength}`;
@@ -229,6 +222,7 @@ export default function Hero() {
         const updateWipe = (p: number) => {
           const currentLength = p * totalLength;
           if (maskStrokeRef.current) {
+            // Fix the syntax error here by adding the minus sign
             maskStrokeRef.current.style.strokeDashoffset = `${totalLength - currentLength}`;
           }
 
@@ -242,7 +236,7 @@ export default function Hero() {
 
               const pt = path.getPointAtLength(currentLength);
               const ptAhead = path.getPointAtLength(
-                Math.min(totalLength, currentLength + 2),
+                Math.min(totalLength, currentLength + 2)
               );
               const angle =
                 (Math.atan2(ptAhead.y - pt.y, ptAhead.x - pt.x) * 180) /
@@ -256,6 +250,8 @@ export default function Hero() {
         };
 
         updateWipe(0);
+
+        // ... rest of your ribbon animation code (tl.call(...)) remains the same
 
         // At 90% scroll progress — launch the free-running wipe tween
         tl.call(

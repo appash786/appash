@@ -1,22 +1,28 @@
 "use client";
-import React, { useRef, Suspense, useCallback } from "react";
-import { Canvas } from "@react-three/fiber";
-import ThreeImage from "../ThreeJs/ThreeImage";
+import React, { useRef, useCallback } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CustomEase from "gsap/dist/CustomEase";
 import { useGSAP } from "@gsap/react";
-gsap.registerPlugin(CustomEase) 
+import Image from "next/image";
+gsap.registerPlugin(CustomEase);
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
 
-const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; index:number }) => {
+const ThreeDImage = ({
+  image,
+  index,
+}: {
+  image?: { img: string; depth: string };
+  index: number;
+}) => {
+  if (!image) return null;
   const mouse = useRef<[number, number]>([0, 0]);
   const hovering = useRef(false);
   const onReady = useCallback(() => {}, []);
   const cameraZ = useRef({ value: 5 });
-  const CanvaRef = useRef<HTMLCanvasElement>(null);
+  const CanvaRef = useRef<HTMLImageElement>(null);
 
   const canvasStyle: React.CSSProperties = {
     position: "absolute",
@@ -43,22 +49,24 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
     gsap.fromTo(
       CanvaRef.current,
       {
-         clipPath: "inset(20% 20% 20% 20% round 10px)" ,
-         translateX: isLeft ? "20%" : "-20%",
+        clipPath: "inset(20% 20% 20% 20% round 10px)",
+        translateX: isLeft ? "20%" : "-20%",
       },
       {
-        clipPath: "inset(0% 0% 0% 0% round 10px)" , 
+        clipPath: "inset(0% 0% 0% 0% round 10px)",
         translateX: "0%",
 
         duration: 1.5,
 
-        ease: CustomEase.create("custom", "M0,0 C0.084,0.61 0.061,0.599 0.195,0.789 0.263,0.886 0.374,1 1,1 "),
+        ease: CustomEase.create(
+          "custom",
+          "M0,0 C0.084,0.61 0.061,0.599 0.195,0.789 0.263,0.886 0.374,1 1,1 ",
+        ),
         scrollTrigger: {
           trigger: CanvaRef.current,
           start: "top 90%",
           end: "bottom 20%",
           toggleActions: "play none none reverse",
-   
         },
       },
     );
@@ -83,23 +91,14 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
-      <Canvas
+      <Image
         ref={CanvaRef}
-        style={{ ...canvasStyle, zIndex: 20 }}
-        camera={{ position: [0, 0, 6], fov: 75 }}
-        gl={{ antialias: true, alpha: true }}
-        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
-      >
-        <Suspense fallback={null}>
-          <ThreeImage
-            mouse={mouse}
-            onReady={onReady}
-            cameraZ={cameraZ}
-            image={image}
-            hovering={hovering}
-          />
-        </Suspense>
-      </Canvas>
+        src={image.img}
+        alt={"appasj"}
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      />
     </div>
   );
 };

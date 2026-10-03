@@ -1,19 +1,9 @@
-import { useRef } from "react";
 import Image from "next/image";
 import LineBar from "../LineBar";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
 
 const BlogList = ({ lists }: any) => {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   return (
-    <div ref={containerRef} className="w-full flex gap-5 flex-col relative">
+    <div className="w-full flex gap-5 flex-col relative">
       {lists.map((item: any, index: number) => (
         <div key={item.id ?? index}>
           <div className="blog-item w-full flex group xl:px-16 border-b border-gray-300/50  py-5">
@@ -34,7 +24,7 @@ const BlogList = ({ lists }: any) => {
                 </div>
                 <div className="absolute w-full flex items-center justify-center h-full  z-9">
                   <div className="flex flex-col items-center group-hover:opacity-100 opacity-0 duration-700   justify-center ">
-                    <Image src={'/Assets/Images/icons/view.png'} width={100} height={100} style={{ width: '32px', height: 'auto' }} alt="view" />
+                    <Image src={'/Assets/Icons/view.png'} width={32} height={32} style={{ width: '32px', height: 'auto' }} alt="view" />
                     <p className="text-3xl mt-2 font-semibold uppercase">
                       Read
                     </p>

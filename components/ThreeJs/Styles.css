@@ -1,3 +1,4 @@
 .HeroText {
   color: rgb(0, 0, 0);
 }
+.hero-fg-poster { width: auto; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }

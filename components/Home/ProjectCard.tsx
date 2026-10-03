@@ -1,8 +1,15 @@
 "use client";
-import  { forwardRef } from "react";
-import ThreeDImage from "../Cards/Card";
-
+import { forwardRef } from "react";
+import dynamic from "next/dynamic";
 import SplitText from "../Text/SplitText";
+
+const ThreeDImage = dynamic(() => import("../Cards/Card"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full aspect-video xl:h-[78%] bg-neutral-900/30 rounded-lg animate-pulse" />
+  ),
+});
+
 interface ProjectCardProps {
   project: {
     title: string;
@@ -15,9 +22,6 @@ interface ProjectCardProps {
 
 const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
   ({ project, index }, ref) => {
-    const handleAnimationComplete = () => {
-      console.log("All letters have animated!");
-    };
     return (
       /* 
       We attach the ref to this outer wrapper which remains completely static in size.
@@ -67,7 +71,7 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
                 threshold={0.1}
                 rootMargin="-100px"
                 textAlign="center"
-                onLetterAnimationComplete={handleAnimationComplete}
+                
               />
             </div>
           <div>

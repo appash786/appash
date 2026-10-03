@@ -1,7 +1,7 @@
 "use client";
 
 import React, { Suspense, useCallback, useEffect, useState, useMemo, useRef } from "react";
-import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
 import { useGLTF, Float, Center, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -24,6 +24,17 @@ function CameraModel({
   const { scene } = useGLTF(model);
   const clonedScene = useMemo(() => scene.clone(true), [scene]);
   const groupRef = useRef<THREE.Group>(null);
+  const dragRef = useRef<THREE.Group>(null);
+
+  // State to track if continuous rotation is active on mobile
+  const [isRotating, setIsRotating] = useState(false);
+
+  // Continuous auto-rotation frame loop for mobile tap toggle
+  useFrame((_, delta) => {
+    if (isMobile && isRotating && dragRef.current) {
+      dragRef.current.rotation.y += delta * 2; // Adjust speed here
+    }
+  });
 
   useGSAP(() => {
     if (!groupRef.current || !triggerRef.current) return;
@@ -63,13 +74,11 @@ function CameraModel({
     );
   }, [triggerRef]);
 
-  // Elastic drag interaction
-  const dragRef = useRef<THREE.Group>(null);
+  // Elastic drag interaction (Desktop only)
   const isDraggingRef = useRef(false);
   const startPosRef = useRef({ x: 0, y: 0 });
   const elasticTweenRef = useRef<gsap.core.Tween | null>(null);
 
-// Define handler references outside so they can be cleaned up on unmount
   const handlePointerMoveRef = useRef<((e: PointerEvent) => void) | null>(null);
   const handlePointerUpRef = useRef<(() => void) | null>(null);
   
@@ -136,7 +145,6 @@ function CameraModel({
       });
     };
 
-    // Store refs for unmount cleanup
     handlePointerMoveRef.current = handlePointerMove;
     handlePointerUpRef.current = handlePointerUp;
 
@@ -152,6 +160,13 @@ function CameraModel({
       document.body.style.cursor = "auto";
     };
   }, []);
+
+  // Handle mobile click/tap to toggle spin animation
+  const handleClick = (e: ThreeEvent<MouseEvent>) => {
+    if (!isMobile) return;
+    e.stopPropagation();
+    setIsRotating((prev) => !prev);
+  };
 
   return (
     <Float
@@ -169,6 +184,7 @@ function CameraModel({
               rotation={[-0.5, -0.7, 3.1]}
               scale={1.1}
               onPointerDown={isMobile ? undefined : handlePointerDown}
+              onClick={isMobile ? handleClick : undefined}
               onPointerOver={isMobile ? undefined : () => {
                 if (!isDraggingRef.current) document.body.style.cursor = "grab";
               }}
@@ -185,20 +201,18 @@ function CameraModel({
 
 interface Skills3DProps {
   model: string;
-  triggerRef: React.RefObject<HTMLDivElement | null>; // Fix: Added "| null" back with correct syntax
+  triggerRef: React.RefObject<HTMLDivElement | null>;
 }
+
 const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
   const [isMobile, setIsMobile] = useState(false);
 
-  // Fixed mobile detection to handle window resizing
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
     };
     
-    // Set initial value
     handleResize();
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -207,7 +221,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
     <div
       className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20"
       style={{
-        pointerEvents: isMobile ? "none" : "auto",
+        pointerEvents: isMobile ? "auto" : "auto", // Allow pointer events so mobile taps register on canvas
         cursor: isMobile ? "default" : "grab",
       }}
     >
@@ -230,14 +244,13 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
             decay={2}
             distance={50}
             color={"#ffffff"}
-            castShadow
           />
 
           <ambientLight intensity={1} />
 
           <CameraModel model={model} triggerRef={triggerRef} isMobile={isMobile} />
 
-          <Environment preset="city" environmentIntensity={2.5} />
+          <Environment files="/hdr/city.hdr" environmentIntensity={2.5} />
         </Suspense>
       </Canvas>
     </div>

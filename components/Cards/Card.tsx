@@ -1,6 +1,6 @@
 "use client";
 import React, { useRef, Suspense, useCallback } from "react";
-import { Canvas } from "@react-three/fiber";
+import LazyCanvas from "../ThreeJs/LazyCanvas";
 import ThreeImage from "../ThreeJs/ThreeImage";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -16,13 +16,13 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
   const hovering = useRef(false);
   const onReady = useCallback(() => {}, []);
   const cameraZ = useRef({ value: 5 });
-  const CanvaRef = useRef<HTMLCanvasElement>(null);
+  const CanvaRef = useRef<HTMLDivElement>(null); // wrapper div: always mounted, so GSAP can animate it
 
   const canvasStyle: React.CSSProperties = {
     position: "absolute",
     width: "100%",
     height: "100%",
-    zIndex: 10,
+    zIndex: 20,
     objectFit: "cover",
     aspectRatio: "16:9",
   };
@@ -75,9 +75,11 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
-      <Canvas
-        ref={CanvaRef}
-        style={{ ...canvasStyle, zIndex: 20 }}
+      <LazyCanvas
+        wrapperClassName="absolute inset-0 w-full h-full"
+        wrapperStyle={{ zIndex: 20 }}
+        wrapperRef={CanvaRef}
+        style={canvasStyle}
         camera={{ position: [0, 0, 6], fov: 75 }}
         gl={{ antialias: true, alpha: true }}
         onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
@@ -91,7 +93,7 @@ const ThreeDImage = ({ image,index }: { image?: { img: string; depth: string }; 
             hovering={hovering}
           />
         </Suspense>
-      </Canvas>
+      </LazyCanvas>
     </div>
   );
 };

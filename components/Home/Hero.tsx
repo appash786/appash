@@ -3,16 +3,8 @@ import { useRef ,useState,useCallback , useMemo } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import dynamic from "next/dynamic";
 import DecryptedText from "@/components/Text/DecryptedText"
-const VisualHero = dynamic(() => import("@/components/ThreeJs/VisualHero"), {
-  ssr: false,
-  loading: () => (
-    <div className="h-screen w-full bg-black flex items-center justify-center text-white">
-      <span className="text-sm">Loading Hero Scene...</span>
-    </div>
-  ),
-});
+import VisualHero from "@/components/ThreeJs/VisualHero";
 
 // ─── Main Hero (The scroll logic) ───
 const CURVE_PATH_D =

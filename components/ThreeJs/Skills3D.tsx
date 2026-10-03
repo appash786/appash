@@ -1,7 +1,8 @@
 "use client";
 
 import React, { Suspense, useCallback, useEffect, useState, useMemo, useRef } from "react";
-import { Canvas, ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent } from "@react-three/fiber";
+import LazyCanvas from "./LazyCanvas";
 import { useGLTF, Float, Center, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -202,7 +203,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
 
   return (
     <div className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
-      <Canvas
+      <LazyCanvas
         camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
         gl={{ alpha: true, antialias: true }}
       >
@@ -230,7 +231,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
 
           <Environment preset="city" environmentIntensity={2.5} />
         </Suspense>
-      </Canvas>
+      </LazyCanvas>
     </div>
   );
 };

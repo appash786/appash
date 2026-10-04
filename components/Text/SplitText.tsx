@@ -22,6 +22,8 @@ export interface SplitTextProps {
   tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
   textAlign?: React.CSSProperties['textAlign'];
   onLetterAnimationComplete?: () => void;
+  // Optional breakpoint in pixels below which animation is disabled (default: 768)
+  mobileBreakpoint?: number;
 }
 
 const SplitText: React.FC<SplitTextProps> = ({
@@ -37,15 +39,14 @@ const SplitText: React.FC<SplitTextProps> = ({
   rootMargin = '-100px',
   tag = 'p',
   textAlign = 'center',
-  onLetterAnimationComplete
+  onLetterAnimationComplete,
+  mobileBreakpoint = 768
 }) => {
-  // Changed ref generic to HTMLElement to accommodate all tag types (h1-h6, p, span)
   const ref = useRef<HTMLElement>(null);
   const animationCompletedRef = useRef(false);
   const onCompleteRef = useRef(onLetterAnimationComplete);
   const [fontsLoaded, setFontsLoaded] = useState<boolean>(false);
 
-  // Keep callback ref updated
   useEffect(() => {
     onCompleteRef.current = onLetterAnimationComplete;
   }, [onLetterAnimationComplete]);
@@ -63,6 +64,15 @@ const SplitText: React.FC<SplitTextProps> = ({
   useGSAP(
     () => {
       if (!ref.current || !text || !fontsLoaded) return;
+
+      // Check if current viewport is mobile-sized
+      const isMobile = window.innerWidth < mobileBreakpoint;
+      if (isMobile) {
+        animationCompletedRef.current = true;
+        onCompleteRef.current?.();
+        return;
+      }
+
       if (animationCompletedRef.current) return;
       const el = ref.current as HTMLElement & {
         _rbsplitInstance?: GSAPSplitText;
@@ -151,7 +161,8 @@ const SplitText: React.FC<SplitTextProps> = ({
         JSON.stringify(to),
         threshold,
         rootMargin,
-        fontsLoaded
+        fontsLoaded,
+        mobileBreakpoint
       ],
       scope: ref
     }
@@ -165,7 +176,6 @@ const SplitText: React.FC<SplitTextProps> = ({
     };
     const classes = `split-parent overflow-hidden inline-block whitespace-normal ${className}`;
 
-    // Replaced <Tag> JSX with React.createElement to bypass TS2745 dynamic component type errors
     return React.createElement(
       tag || 'p',
       {

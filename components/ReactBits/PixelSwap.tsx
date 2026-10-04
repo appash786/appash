@@ -58,8 +58,7 @@ interface Transition {
   to: boolean;
   grid: Grid;
 }
-// Every pixel is a window onto its own copy of the incoming content, so the
-// grid stays bounded no matter how small the requested pixel size is.
+
 const MAX_PIXELS = 220;
 const KEYFRAME_STEPS = 14;
 
@@ -121,9 +120,6 @@ const makeEasing = (value: string): ((progress: number) => number) => {
   };
 };
 
-// Pixels grow slightly past their own box so gaps and rounded corners close
-// completely by the end. Overlap is invisible because every pixel shows the
-// same content locked to the same origin.
 const coverScale = (size: number, gap: number, radius: number): number => {
   const p = clamp(radius, 0, 50) / 100;
   const corner = Math.SQRT1_2 / (Math.SQRT2 * (0.5 - p) + p);
@@ -155,7 +151,6 @@ const buildGrid = ({
     rows = Math.max(1, Math.ceil((height + gap) / (size + gap)));
   }
 
-  // Overhang the box so edge pixels stay square instead of being cut short.
   const stride = size + gap;
   const originX = (width - (columns * stride - gap)) / 2;
   const originY = (height - (rows * stride - gap)) / 2;
@@ -183,8 +178,6 @@ const buildGrid = ({
   return { pixels, size, gap, width, height };
 };
 
-// One shared pair of keyframe lists for the whole grid: the window transform
-// and its exact inverse, so revealed content never drifts or scales.
 const buildKeyframes = ({
   ease,
   startScale,
@@ -253,7 +246,7 @@ function PixelSwap({
   const layerRefs = useRef<(HTMLDivElement | null)[]>([]);
   const pixelRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationsRef = useRef<Animation[]>([]);
-  const timerRef = useRef(0);
+  const timerRef = useRef<number>(0);
 
   const desiredActive = active ?? internalActive;
   const incomingIndex = transition?.to ? 1 : 0;
@@ -271,37 +264,48 @@ function PixelSwap({
     [box.width, box.height, pixelSize, gap, pattern, randomness]
   );
 
-  // Snapshot the animation inputs so a transition already in flight is never
-  // rebuilt halfway through by an unrelated prop change.
-  const config = { duration, pixelDuration, pixelSpin, pixelScale, pixelRadius, fade, easing, onComplete };
+  const config = useMemo(
+    () => ({ duration, pixelDuration, pixelSpin, pixelScale, pixelRadius, fade, easing, onComplete }),
+    [duration, pixelDuration, pixelSpin, pixelScale, pixelRadius, fade, easing, onComplete]
+  );
+  
   const configRef = useRef(config);
   const gridRef = useRef(grid);
   configRef.current = config;
   gridRef.current = grid;
 
+  // Optimized ResizeObserver with requestAnimationFrame batching
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
-    // Measure the padding box, which is the coordinate space the absolutely
-    // positioned layers and pixel grid actually live in.
-    const measure = () => {
-      const width = container.clientWidth;
-      const height = container.clientHeight;
-      if (!width || !height) return;
-      setBox(current => (current.width === width && current.height === height ? current : { width, height }));
-    };
+    let rafId = 0;
+    const observer = new ResizeObserver(entries => {
+      cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        for (const entry of entries) {
+          const width = entry.contentRect.width;
+          const height = entry.contentRect.height;
+          if (width && height) {
+            setBox(current => (current.width === width && current.height === height ? current : { width, height }));
+          }
+        }
+      });
+    });
 
-    measure();
-    const observer = new ResizeObserver(measure);
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const stopAnimations = useCallback(() => {
     animationsRef.current.forEach(animation => animation.cancel());
     animationsRef.current = [];
-    pixelRefs.current.forEach(pixel => pixel?.replaceChildren());
+    pixelRefs.current.forEach(pixel => {
+      if (pixel) pixel.replaceChildren();
+    });
     if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = 0;
   }, []);
@@ -343,20 +347,19 @@ function PixelSwap({
       fade: settings.fade
     });
 
+    // Batch DOM preparation outside layout read loops if possible, 
+    // or keep localized per pixel element using modern Web Animations API.
     frozenGrid.pixels.forEach((pixel, index) => {
       const pixelElement = pixelRefs.current[index];
       if (!pixelElement) return;
 
-      // Clone the rendered layer instead of re-rendering the content through
-      // React once per pixel: same visual result, a fraction of the cost.
       const content = document.createElement('div');
-      content.className = 'absolute';
+      content.className = 'absolute will-change-transform';
       content.style.left = `${-pixel.left}px`;
       content.style.top = `${-pixel.top}px`;
       content.style.width = `${frozenGrid.width}px`;
       content.style.height = `${frozenGrid.height}px`;
-      // Counter-transform about the pixel's centre, not the content's, so the
-      // two transforms cancel to an exact identity at every frame.
+
       const originX = pixel.left + frozenGrid.size / 2;
       const originY = pixel.top + frozenGrid.size / 2;
       content.style.transformOrigin = `${originX}px ${originY}px`;
@@ -374,6 +377,7 @@ function PixelSwap({
         easing: 'linear',
         fill: 'both'
       };
+
       animationsRef.current.push(
         pixelElement.animate(keyframes.window, timing),
         content.animate(keyframes.content, timing)
@@ -428,7 +432,7 @@ function PixelSwap({
         ref={element => {
           layerRefs.current[index] = element;
         }}
-        className="absolute inset-0 h-full w-full data-[visible=false]:invisible"
+        className="absolute inset-0 h-full w-full will-change-auto data-[visible=false]:invisible"
         data-visible={isShown && !(transition && index === incomingIndex)}
         style={{ zIndex: isShown ? 2 : 1 }}
         aria-hidden={!isShown}
@@ -458,7 +462,7 @@ function PixelSwap({
               ref={element => {
                 pixelRefs.current[index] = element;
               }}
-              className="absolute overflow-hidden opacity-0 [contain:paint]"
+              className="absolute overflow-hidden opacity-0 will-change-transform [contain:paint]"
               style={{
                 left: pixel.left,
                 top: pixel.top,

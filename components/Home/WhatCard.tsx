@@ -209,6 +209,7 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
           duration={900}
           pixelDuration={350}
           fade
+          style={{ willChange: "transform", isolation: "isolate" } as React.CSSProperties}
         />
       </div>
     </div>

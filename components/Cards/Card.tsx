@@ -1,5 +1,7 @@
 "use client";
-import React, { useRef, useCallback } from "react";
+import React, { useRef, Suspense, useCallback } from "react";
+import { Canvas } from "@react-three/fiber";
+import ThreeImage from "../ThreeJs/ThreeImage";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CustomEase from "gsap/dist/CustomEase";
@@ -22,13 +24,13 @@ const ThreeDImage = ({
   const hovering = useRef(false);
   const onReady = useCallback(() => {}, []);
   const cameraZ = useRef({ value: 5 });
-  const CanvaRef = useRef<HTMLImageElement>(null);
+  const CanvaRef = useRef<HTMLCanvasElement>(null);
 
   const canvasStyle: React.CSSProperties = {
     position: "absolute",
     width: "100%",
     height: "100%",
-    zIndex: 10,
+    zIndex: 20,
     objectFit: "cover",
     aspectRatio: "16:9",
   };
@@ -91,14 +93,23 @@ const ThreeDImage = ({
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
-      <Image
+      <Canvas
         ref={CanvaRef}
-        src={image.img}
-        alt={"appasj"}
-        fill
-        className="object-cover"
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-      />
+        style={{ ...canvasStyle, zIndex: 20 }}
+        camera={{ position: [0, 0, 6], fov: 75 }}
+        gl={{ antialias: true, alpha: true }}
+        onCreated={({ gl }) => gl.setClearColor(0x000000, 0)}
+      >
+        <Suspense fallback={null}>
+          <ThreeImage
+            mouse={mouse}
+            onReady={onReady}
+            cameraZ={cameraZ}
+            image={image}
+            hovering={hovering}
+          />
+        </Suspense>
+      </Canvas>
     </div>
   );
 };

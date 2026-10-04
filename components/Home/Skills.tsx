@@ -64,7 +64,7 @@ const Skills = () => {
   );
 
   return (
-    <section ref={containerRef} className="relative -translate-y-20 xl:-translate-y-  overflow-hidden">
+    <section ref={containerRef} className="relative -translate-y-20 xl:-translate-y- z-10  overflow-hidden">
       {/* Background Particles Layer fixed to viewport and toggled by ScrollTrigger */}
 
 

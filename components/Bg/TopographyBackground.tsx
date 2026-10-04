@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import dynamic from "next/dynamic";
 
@@ -29,7 +29,7 @@ export default function TopographyBackground() {
         inset: 0,
         width: "100vw",
         height: "100vh",
-        zIndex: 5,
+        zIndex: 1,
         pointerEvents: "none",
         // Dark base so the coloured contour lines pop
         background: "transparent",

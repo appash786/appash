@@ -100,11 +100,13 @@ const Projects = () => {
 
   return (
     <section
-    style={{ clipPath: "url(#meClip-3)", WebkitClipPath: "url(#meClip-3)" }}
-      ref={containerRef}
-      className="relative bg-black pb-40 w-screen overflow-hidden select-none py-12"
-    >
 
+      ref={containerRef}
+      className="relative   pb-40 w-screen overflow-hidden select-none py-12"
+    >
+      <div     style={{ clipPath: "url(#meClip-3)", WebkitClipPath: "url(#meClip-3)" }} className="absolute w-full h-full top-0 bg-black">
+
+      </div>
       <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
           <clipPath id="meClip-3" clipPathUnits="objectBoundingBox">

@@ -57,7 +57,9 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
               {/* <p className="text-white text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight group-hover:text-amber-200 transition-colors duration-300">
               {project.title}
             </p> */}
-            <p className="text-amber-50 group-hover:translate-x-0 transition-all duration-500 text-6xl -translate-x-10 leading-[0.95]">{'> '} </p>
+              <p className="text-amber-50 group-hover:translate-x-0 transition-all duration-500 text-6xl -translate-x-10 leading-[0.95]">
+                {"> "}{" "}
+              </p>
               <SplitText
                 text={project.title}
                 tag="h1"
@@ -71,12 +73,9 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
                 threshold={0.1}
                 rootMargin="-100px"
                 textAlign="center"
-                
               />
             </div>
-          <div>
-
-          </div>
+            <div></div>
           </div>
         </div>
       </div>

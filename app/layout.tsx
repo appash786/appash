@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "@/components/Lenis/LenisProvider";
+import LoadingScreen from "@/components/Loading/LoadingScreen";
 const montserrat = Montserrat({
   variable: "--font-montserrat",
   subsets: ["latin"],
@@ -26,6 +27,7 @@ export default function RootLayout({
         3. Removed stray whitespace {" "} inside <body>
       */}
       <body className="m-0 p-0" suppressHydrationWarning>
+        <LoadingScreen />
         <LenisProvider>{children}</LenisProvider>
       </body>
     </html>

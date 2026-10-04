@@ -30,32 +30,26 @@ export default function BlockReveal({
 
   useGSAP(
     () => {
-      const mm = gsap.matchMedia();
+      // Removed matchMedia so this runs on all screen sizes
+      gsap.set(textRef.current, { opacity: 0 });
+      gsap.set(overlayRef.current, { scaleX: 0, transformOrigin: "left" });
 
-      // Desktop / tablet only
-      mm.add("(min-width: 768px)", () => {
-        gsap.set(textRef.current, { opacity: 0 });
-        gsap.set(overlayRef.current, { scaleX: 0, transformOrigin: "left" });
+      const half = duration / 2;
 
-        const half = duration / 2;
-
-        gsap
-          .timeline({
-            scrollTrigger: {
-              trigger: containerRef.current,
-              start: "top 85%",
-              toggleActions: "play none none none",
-            },
-            delay,
-            defaults: { ease: "power3.inOut" },
-          })
-          .to(overlayRef.current, { scaleX: 1, duration: half })
-          .set(textRef.current, { opacity: 1 })
-          .set(overlayRef.current, { transformOrigin: "right" })
-          .to(overlayRef.current, { scaleX: 0, duration: half });
-      });
-
-      return () => mm.revert();
+      gsap
+        .timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: "top 85%",
+            toggleActions: "play none none none",
+          },
+          delay,
+          defaults: { ease: "power3.inOut" },
+        })
+        .to(overlayRef.current, { scaleX: 1, duration: half })
+        .set(textRef.current, { opacity: 1 })
+        .set(overlayRef.current, { transformOrigin: "right" })
+        .to(overlayRef.current, { scaleX: 0, duration: half });
     },
     { scope: containerRef, dependencies: [color, delay, duration] }
   );
@@ -65,15 +59,15 @@ export default function BlockReveal({
       ref={containerRef}
       className={`relative inline-block w-fit overflow-hidden ${className}`}
     >
-      {/* Visible by default on mobile; hidden only on md+ until GSAP reveals it */}
-      <div ref={textRef} className="relative z-10 md:opacity-0">
+      {/* Replaced md:opacity-0 with opacity-0 to prevent flash on all devices */}
+      <div ref={textRef} className="relative z-10 opacity-0">
         {children}
       </div>
 
-      {/* Overlay doesn't exist on mobile */}
+      {/* Removed "hidden md:block" so the overlay renders on mobile too */}
       <div
         ref={overlayRef}
-        className="absolute inset-0 z-20 hidden h-full w-full origin-left scale-x-0 will-change-transform md:block"
+        className="absolute inset-0 z-20 h-full w-full origin-left scale-x-0 will-change-transform"
         style={{ backgroundColor: color }}
       />
     </div>

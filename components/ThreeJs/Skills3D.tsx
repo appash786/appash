@@ -1,7 +1,7 @@
 "use client";
 
-import React, { Suspense, useCallback, useEffect, useState, useMemo, useRef } from "react";
-import { Canvas, ThreeEvent, useFrame } from "@react-three/fiber";
+import React, { Suspense, useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Canvas, useFrame, ThreeEvent } from "@react-three/fiber";
 import { useGLTF, Float, Center, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import gsap from "gsap";
@@ -26,15 +26,11 @@ function CameraModel({
   const groupRef = useRef<THREE.Group>(null);
   const dragRef = useRef<THREE.Group>(null);
 
-  // State to track if continuous rotation is active on mobile
-  const [isRotating, setIsRotating] = useState(false);
+  // One-shot spin on mobile tap (no continuous loop needed)
+  const isSpinningRef = useRef(false);
 
-  // Continuous auto-rotation frame loop for mobile tap toggle
-  useFrame((_, delta) => {
-    if (isMobile && isRotating && dragRef.current) {
-      dragRef.current.rotation.y += delta * 2; // Adjust speed here
-    }
-  });
+  // useFrame is still needed by Float — keep it but do nothing here
+  useFrame(() => {});
 
   useGSAP(() => {
     if (!groupRef.current || !triggerRef.current) return;
@@ -161,11 +157,20 @@ function CameraModel({
     };
   }, []);
 
-  // Handle mobile click/tap to toggle spin animation
+  // Handle mobile tap: spin 360° once to show 3D depth
   const handleClick = (e: ThreeEvent<MouseEvent>) => {
-    if (!isMobile) return;
+    if (!isMobile || isSpinningRef.current || !dragRef.current) return;
     e.stopPropagation();
-    setIsRotating((prev) => !prev);
+    isSpinningRef.current = true;
+    const startY = dragRef.current.rotation.y;
+    gsap.to(dragRef.current.rotation, {
+      y: startY + Math.PI * 2,
+      duration: 1.2,
+      ease: "power2.inOut",
+      onComplete: () => {
+        isSpinningRef.current = false;
+      },
+    });
   };
 
   return (
@@ -218,13 +223,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
   }, []);
 
   return (
-    <div
-      className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20"
-      style={{
-        pointerEvents: isMobile ? "auto" : "auto", // Allow pointer events so mobile taps register on canvas
-        cursor: isMobile ? "default" : "grab",
-      }}
-    >
+    <div className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
       <Canvas
         camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
         gl={{ alpha: true, antialias: true }}

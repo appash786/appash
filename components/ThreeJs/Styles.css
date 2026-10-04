@@ -1,8 +1,3 @@
 .HeroText {
   color: rgb(0, 0, 0);
 }
-/* Hero poster foreground: mobile = contain at bottom (as before), desktop = cover (matches the shader's coverUV) */
-.hero-fg-poster { width: auto; height: 100%; max-width: none; object-fit: contain; object-position: center bottom; }
-@media (min-width: 769px) {
-  .hero-fg-poster { width: 100%; object-fit: cover; object-position: center; }
-}

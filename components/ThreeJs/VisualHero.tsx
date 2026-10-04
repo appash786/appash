@@ -106,7 +106,10 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
               alt=""
               fetchPriority="high"
               decoding="async"
-              className="hero-fg-poster"
+              // Sizing is done with utility classes ON the element (not in Styles.css), so it
+              // can't get lost. Mobile: fit the screen HEIGHT (width auto, no max-width cap).
+              // Desktop (>=769px): cover the whole frame like the WebGL scene does.
+              className="h-full w-auto max-w-none object-contain object-bottom min-[769px]:w-full min-[769px]:object-cover min-[769px]:object-center"
             />
           </picture>
         </div>
@@ -141,7 +144,7 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           {/* NOT gated by isReady any more: the heading is real HTML from the first paint */}
           <div className="w-full flex z-22 xl:justify-between justify-center items-center xl:flex-row flex-col xl:items-center h-[40vh]">
             <div className="xl:w-[45%] w-full flex justify-center xl:justify-end ">
-              <h1 className="xl:text-5xl text-3xl leading-7 xl:leading-11 font-bold uppercase text-center italic ">
+              <h1 className="xl:text-5xl text-2xl leading-6 xl:leading-11 font-bold uppercase text-center italic ">
                 <span className="float-right">
                   {" "}
                   <BlockReveal className=" text-black block" color="#A50000" delay={0.15} duration={1.2}>
@@ -150,7 +153,7 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
                 </span>{" "}
                 <br />
                 <BlockReveal className=" text-black block" color="#A50000" delay={0.25} duration={1.2}>
-                  <span className="mr-15 text-white">website </span>
+                  <span className="mr-8 text-white">website </span>
                   <span className="text-white mr-2"> frontend</span>
                 </BlockReveal>
                 <br />

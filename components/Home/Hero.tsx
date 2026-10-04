@@ -183,7 +183,7 @@ export default function Hero() {
         if (mobileFg) {
           tl.fromTo(
             mobileFg,
-            { scale: 0.85 }, // mobile start size (was 0.7); end 0.49 fits the cropped box
+            { scale: 0.7 }, // mobile start size; end 0.49 fits the cropped box
             {
               scale: 0.49, // visually matches cameraZ 5 → 10.25 zoom-out
               ease: "power2.inOut",

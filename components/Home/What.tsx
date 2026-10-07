@@ -425,7 +425,7 @@ const What = () => {
               >
                 {[...techItems, ...techItems].map((item, index) => (
                   <div key={`dup-${index}`} className="flex items-center">
-                    <span className="text-white text-lg sm:text-sm tracking-widest px-3 uppercase">
+                    <span className="text-white xl:text-lg text-xs sm:text-sm tracking-widest xl:px-3 px-2 uppercase">
                       {item}
                     </span>
                   </div>

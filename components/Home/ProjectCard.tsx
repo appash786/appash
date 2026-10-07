@@ -1,14 +1,9 @@
 "use client";
 import { forwardRef } from "react";
-import dynamic from "next/dynamic";
 import SplitText from "../Text/SplitText";
+import Image from "next/image";
 
-const ThreeDImage = dynamic(() => import("../Cards/Card"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full aspect-video xl:h-[78%] bg-neutral-900/30 rounded-lg animate-pulse" />
-  ),
-});
+
 
 interface ProjectCardProps {
   project: {
@@ -30,23 +25,9 @@ const ProjectCard = forwardRef<HTMLDivElement, ProjectCardProps>(
     */
       <div ref={ref} className="w-full xl:h-[520px] sm:h-[580px]">
         <div className="card-inner w-full h-full group relative flex  flex-col px-2 xl:p-4 rounded-2xl  hover:border-white/20 transition-all duration-300">
-          {/* 3D Image Container */}
-          {/* <div className="w-full h-[78%] relative overflow-hidden rounded-xl bg-black/40">
-         <div className="absolute inset-0 w-full h-full bg-cover bg-center ">
-           <ThreeDImage image={project.image} />
-         </div>
-
-        
-          <a
-            href={project.link}
-            className="absolute top-4 right-4 z-30 p-3 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-white group-hover:bg-white group-hover:text-black transition-all duration-300 shadow-lg flex items-center justify-center pointer-events-auto"
-            aria-label={`View ${project.title}`}
-          >
-            <ArrowUpRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-          </a>
-        </div> */}
-
-          <ThreeDImage image={project.image} index={index ?? 0} />
+        <div>
+          <Image src={project.image.img} alt={project.title} width={1000} height={1000} className="w-full h-full object-cover rounded-sm " />
+        </div>
 
           {/* Info Content */}
           <div className="w-full   px-1 flex flex-col mt-2 xl:justify-between">

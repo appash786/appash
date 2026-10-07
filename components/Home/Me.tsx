@@ -50,12 +50,14 @@ const Me = () => {
         }
       };
 
-      const isMobile = window.innerWidth < 768;
+      const mobileCheck = window.innerWidth < 768;
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
-      if (prefersReducedMotion || isMobile) {
+      // Handle reduced motion or static mobile clip-path defaults if needed,
+      // but let the entrance animations run for mobile!
+      if (prefersReducedMotion) {
         bendState.topY = TOP_BENT;
         bendState.bottomY = BOTTOM_BENT;
         applyBend();
@@ -73,41 +75,48 @@ const Me = () => {
         return;
       }
 
-      // Top bend: curves in as section enters
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "top +=800",
-            end: "top top",
-            scrub: 0.4,
-          },
-        })
-        .to(bendState, {
-          topY: TOP_BENT,
-          ease: "none",
-          onUpdate: applyBend,
-        });
+      if (mobileCheck) {
+        // Apply final bent state statically on mobile to prevent janky scrub performance
+        bendState.topY = TOP_BENT;
+        bendState.bottomY = BOTTOM_BENT;
+        applyBend();
+      } else {
+        // Top bend: curves in as section enters (Desktop only)
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top +=800",
+              end: "top top",
+              scrub: 0.4,
+            },
+          })
+          .to(bendState, {
+            topY: TOP_BENT,
+            ease: "none",
+            onUpdate: applyBend,
+          });
 
-      // Bottom bend: mirrors top on exit
-      gsap
-        .timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: "bottom bottom",
-            end: "bottom center",
-            scrub: 0.4,
-          },
-        })
-        .to(bendState, {
-          bottomY: BOTTOM_BENT,
-          ease: "none",
-          onUpdate: applyBend,
-        });
+        // Bottom bend: mirrors top on exit (Desktop only)
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "bottom bottom",
+              end: "bottom center",
+              scrub: 0.4,
+            },
+          })
+          .to(bendState, {
+            bottomY: BOTTOM_BENT,
+            ease: "none",
+            onUpdate: applyBend,
+          });
 
-      applyBend();
+        applyBend();
+      }
 
-      // Rotated squares: scale in from 0 -> 1 as the section enters
+      // Rotated squares: scale in from 0 -> 1 as the section enters (Works on Mobile & Desktop)
       if (squareTopRef.current && squareBottomRef.current) {
         gsap.set([squareTopRef.current, squareBottomRef.current], {
           scale: 0,
@@ -119,6 +128,7 @@ const Me = () => {
             trigger: sectionRef.current,
             start: "top center",
             end: "top 20%",
+            toggleActions: "play none none reverse",
           },
         });
 
@@ -142,32 +152,34 @@ const Me = () => {
         onEnter: () => setStartTyping(true),
       });
 
-      gsap
-        .timeline({
+      // Parallax effects (Desktop only or lighter on mobile)
+      if (!mobileCheck) {
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+          })
+          .to([bgRef.current, squareBottomRef.current, squareTopRef.current], {
+            translateY: 120,
+            ease: "none",
+          });
+
+        gsap.to([contentRef.current], {
+          y: -80,
+          ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top bottom",
             end: "bottom top",
             scrub: true,
           },
-        })
-        .to([bgRef.current, squareBottomRef.current, squareTopRef.current], {
-          translateY: 120,
-          ease: "none",
         });
-
-      gsap.to([contentRef.current], {
-        y: -80,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top bottom",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+      }
     },
-
     { scope: sectionRef },
   );
 
@@ -177,7 +189,7 @@ const Me = () => {
       className="relative w-full min-h-screen overflow-hidden"
     >
       {/* SVG ClipPath Definition for dynamic curved mask */}
-      <svg className="absolute w-0 h-0  pointer-events-none" aria-hidden="true">
+      <svg className="absolute w-0 h-0 pointer-events-none" aria-hidden="true">
         <defs>
           <clipPath id="meClip" clipPathUnits="objectBoundingBox">
             <path
@@ -188,7 +200,7 @@ const Me = () => {
         </defs>
       </svg>
 
-      {/* Clipped Red Background & Portrait Image (z-10, sits above TopographyBackground at z-5) */}
+      {/* Clipped Red Background & Portrait Image */}
       <div
         className="absolute inset-0 z-10 w-full h-full bg-gradient-to-br from-red-600 to-red-700 pointer-events-none"
         style={{ clipPath: "url(#meClip)", WebkitClipPath: "url(#meClip)" }}
@@ -199,37 +211,38 @@ const Me = () => {
           fill
           ref={bgRef}
           unoptimized={true}
-          className="object-cover  pointer-events-none"
+          className="object-cover pointer-events-none"
           sizes="(max-width: 768px) 100vw, 40vw"
           priority
         />
       </div>
+
       <div className="absolute z-10 flex justify-end h-screen w-full pointer-events-none">
-        <div className="w-[50%] relative z-10  h-full">
+        <div className="w-[50%] relative z-10 h-full">
           <div
             ref={squareTopRef}
-            className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50  overflow-hidden xl:right-50 rotate-12 xl:top-3/7  top-10 xl:left-2/5  right-10"
+            className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50 overflow-hidden xl:right-50 rotate-12 xl:top-3/7 top-10 xl:left-2/5 right-10"
           >
             <Image
               src="/Assets/Images/ImagePc.webp"
               alt="Portrait of Appash"
               fill
               unoptimized={true}
-              className="z-6 object-cover "
+              className="z-6 object-cover"
               sizes="(max-width: 768px) 100vw, 40vw"
               priority
             />
           </div>
           <div
             ref={squareBottomRef}
-            className="w-[150px] h-[200px]  xl:w-[200px] xl:h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 xl:-rotate-12 top-10 right-10 xl:bottom-35"
+            className="w-[150px] h-[200px] xl:w-[200px] xl:h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 xl:-rotate-12 top-10 right-10 xl:bottom-35"
           >
             <Image
               src="/Assets/Images/ImageViolin.webp"
               alt="Portrait of Appash"
               fill
               unoptimized={true}
-              className="z-6 object-cover "
+              className="z-6 object-cover"
               sizes="(max-width: 768px) 100vw, 40vw"
               priority
             />
@@ -237,13 +250,10 @@ const Me = () => {
         </div>
       </div>
 
-      <div className="relative z-10 w-full flex justify-center h-full min-h-screen ">
-        {/* Full-bleed photo, left edge, no card/background */}
-
-        {/* Centered text column */}
-        <div className=" md:order-2 flex flex-col mb-15 items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
+      <div className="relative z-10 w-full flex justify-center h-full min-h-screen">
+        <div className="md:order-2 flex flex-col mb-15 items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
           <div ref={contentRef} className="flex justify-between mt-30 flex-col">
-            <div className="flex flex-col items-center justify-center  h-[90%]">
+            <div className="flex flex-col items-center justify-center h-[90%]">
               <h3 className="font-sans mb-2 font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">
                 Hello,{" "}
               </h3>
@@ -264,36 +274,8 @@ const Me = () => {
                 design, and code into visuals that connect.
               </p>
             </div>
-
-            {/* <div className="mb-10 ">
-              <p className="text-white/80 text-sm mb-3">
-                Follow me on social media
-              </p>
-              <div className="flex gap-3 justify-center">
-                {["instagram", "youtube", "linkedin"].map((label) => (
-                  <a
-                    key={label}
-                    href="#"
-                    aria-label={label}
-                    className="w-9 h-9 bg-white/90 hover:bg-white transition-colors rounded-sm"
-                  />
-                ))}
-              </div>
-            </div> */}
           </div>
         </div>
-
-        {/* Two rotated squares, right column */}
-        {/* <div className="order-3 relative hidden md:block">
-          <div
-            ref={squareTopRef}
-            className="absolute right-16 top-[18%] w-40 h-48 bg-gray-200 rotate-[-8deg] shadow-xl"
-          />
-          <div
-            ref={squareBottomRef}
-            className="absolute right-8 top-[48%] w-44 h-52 bg-gray-200 rotate-[6deg] shadow-xl"
-          />
-        </div> */}
       </div>
     </section>
   );

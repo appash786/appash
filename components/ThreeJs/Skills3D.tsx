@@ -249,7 +249,7 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
 
           <CameraModel model={model} triggerRef={triggerRef} isMobile={isMobile} />
 
-          <Environment files="/hdr/city.hdr" environmentIntensity={2.5} />
+          <Environment files="/hdr/citylite.hdr" environmentIntensity={2.5} />
         </Suspense>
       </Canvas>
     </div>

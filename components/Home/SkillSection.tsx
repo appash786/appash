@@ -17,14 +17,14 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
     <section
       ref={containerRef}
       id={`Skills-${text}`}
-      className="relative w-screen h-[50vh] xl:h-screen  flex xl:items-center xl:justify-center  overflow-hidden"
+      className="relative w-screen h-[50vh] lg:h-[60vh] xl:h-screen  flex xl:items-center xl:justify-center  overflow-hidden"
     >
       {/* Background Text Layer (behind the 3D canvas) */}
       <div className="absolute xl:inset-0 w-full   z-10  flex items-center justify-center pointer-events-none">
         <div
           className={` flex mb-40 flex-col items-center justify-center text-center`}
         >
-          <p className="text-[5rem] xl:text-[20rem] BlackT font-semibold SkillHead ">
+          <p className="text-[5rem] lg:text-[10rem] xl:text-[20rem] BlackT font-semibold SkillHead ">
             <FoldText
               className=" "
               text={text}

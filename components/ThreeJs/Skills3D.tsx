@@ -210,13 +210,19 @@ interface Skills3DProps {
 }
 
 const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
-  const [isMobile, setIsMobile] = useState(false);
+  type Breakpoint = "xs" | "mobile" | "md" | "lg" | "xl";
+  const getBreakpoint = (w: number): Breakpoint => {
+    if (w < 480) return "xs";
+    if (w < 768) return "mobile";
+    if (w < 1024) return "md";
+    if (w < 1280) return "lg";
+    return "xl";
+  };
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xl");
+  const isMobile = breakpoint === "xs" || breakpoint === "mobile";
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
+    const handleResize = () => setBreakpoint(getBreakpoint(window.innerWidth));
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
@@ -225,7 +231,20 @@ const Skills3D: React.FC<Skills3DProps> = ({ model, triggerRef }) => {
   return (
     <div className="w-full h-[50vh] xl:h-full bg-transparent absolute xl:inset-0 z-20" style={{ pointerEvents: "auto", cursor: "grab" }}>
       <Canvas
-        camera={{ position: [0, 0, isMobile ? 12 : 18], fov: 45 }}
+        // Camera Z per breakpoint:
+        // xs:     10 — very close for tiny screens
+        // mobile: 12 — standard phone distance
+        // md:     14 — tablet mid-distance
+        // lg:     16 — small desktop
+        // xl:     18 — full desktop
+        camera={{
+          position: [
+            0,
+            0,
+            { xs: 10, mobile: 12, md: 14, lg: 16, xl: 18 }[breakpoint] ?? 18,
+          ],
+          fov: 45,
+        }}
         gl={{ alpha: true, antialias: true }}
       >
         <Suspense fallback={null}>

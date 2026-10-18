@@ -2,10 +2,10 @@ import BlockReveal from "../Text/BlockReveal";
 
 const BCta = () => {
   return (
-    <section className="w-full z-6 h-[30vh] xl:h-screen ">
+    <section className="w-full z-6 lg:h-[50vh] h-[30vh] xl:h-screen ">
       <div className="flex justify-center xl:items-center h-full">
         {/* Changed from <p> to <div> to allow nested block elements */}
-        <div className="text-black z-6 font-semibold text-center text-[3rem] leading-[1] xl:leading-39 xl:text-[11rem]">
+        <div className="text-black z-6 font-semibold text-center text-[3rem] leading-[1] xl:leading-39 xl:text-[10rem] lg:text-[5rem]">
           <BlockReveal
             className="text-black block"
             color="#A50000"
@@ -34,7 +34,7 @@ const BCta = () => {
             delay={0.15}
             duration={1.2}
           >
-            <span className="text-black block uppercase xl:text-[11rem] text-[2.6rem]"> ABOUT mySELF </span>
+            <span className="text-black block uppercase xl:text-[10rem] lg:text-[5rem] text-[2.6rem]"> ABOUT mySELF </span>
           </BlockReveal>
           <br />{" "}
         </div>

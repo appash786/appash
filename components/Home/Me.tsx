@@ -18,12 +18,19 @@ const Me = () => {
   const bgRef = useRef<HTMLImageElement>(null);
 
   const [startTyping, setStartTyping] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  type Breakpoint = "xs" | "mobile" | "md" | "lg" | "xl";
+  const getBreakpoint = (w: number): Breakpoint => {
+    if (w < 480) return "xs";
+    if (w < 768) return "mobile";
+    if (w < 1024) return "md";
+    if (w < 1280) return "lg";
+    return "xl";
+  };
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xl");
+  const isMobile = breakpoint === "xs" || breakpoint === "mobile";
 
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
+    const checkMobile = () => setBreakpoint(getBreakpoint(window.innerWidth));
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
@@ -50,7 +57,8 @@ const Me = () => {
         }
       };
 
-      const mobileCheck = window.innerWidth < 768;
+      const mobileCheck = breakpoint === "xs" || breakpoint === "mobile";
+      const tabletCheck = breakpoint === "md";
       const prefersReducedMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
@@ -76,12 +84,37 @@ const Me = () => {
       }
 
       if (mobileCheck) {
-        // Apply final bent state statically on mobile to prevent janky scrub performance
+        // xs + mobile: apply final bent state statically (prevent janky scrub)
         bendState.topY = TOP_BENT;
         bendState.bottomY = BOTTOM_BENT;
         applyBend();
+      } else if (tabletCheck) {
+        // md: lighter scrub to avoid performance issues on tablets
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top +=900",
+              end: "top top",
+              scrub: 0.6,
+            },
+          })
+          .to(bendState, { topY: TOP_BENT, ease: "none", onUpdate: applyBend });
+
+        gsap
+          .timeline({
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "bottom bottom",
+              end: "bottom center",
+              scrub: 0.6,
+            },
+          })
+          .to(bendState, { bottomY: BOTTOM_BENT, ease: "none", onUpdate: applyBend });
+
+        applyBend();
       } else {
-        // Top bend: curves in as section enters (Desktop only)
+        // lg + xl: full desktop scrub animations
         gsap
           .timeline({
             scrollTrigger: {
@@ -91,13 +124,8 @@ const Me = () => {
               scrub: 0.4,
             },
           })
-          .to(bendState, {
-            topY: TOP_BENT,
-            ease: "none",
-            onUpdate: applyBend,
-          });
+          .to(bendState, { topY: TOP_BENT, ease: "none", onUpdate: applyBend });
 
-        // Bottom bend: mirrors top on exit (Desktop only)
         gsap
           .timeline({
             scrollTrigger: {
@@ -107,11 +135,7 @@ const Me = () => {
               scrub: 0.4,
             },
           })
-          .to(bendState, {
-            bottomY: BOTTOM_BENT,
-            ease: "none",
-            onUpdate: applyBend,
-          });
+          .to(bendState, { bottomY: BOTTOM_BENT, ease: "none", onUpdate: applyBend });
 
         applyBend();
       }
@@ -152,8 +176,11 @@ const Me = () => {
         onEnter: () => setStartTyping(true),
       });
 
-      // Parallax effects (Desktop only or lighter on mobile)
+      // Parallax effects: disabled on xs/mobile, lighter on md, full on lg/xl
       if (!mobileCheck) {
+        const parallaxY = tabletCheck ? 70 : 120;
+        const contentShift = tabletCheck ? -50 : -80;
+
         gsap
           .timeline({
             scrollTrigger: {
@@ -164,12 +191,12 @@ const Me = () => {
             },
           })
           .to([bgRef.current, squareBottomRef.current, squareTopRef.current], {
-            translateY: 120,
+            translateY: parallaxY,
             ease: "none",
           });
 
         gsap.to([contentRef.current], {
-          y: -80,
+          y: contentShift,
           ease: "none",
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -206,7 +233,11 @@ const Me = () => {
         style={{ clipPath: "url(#meClip)", WebkitClipPath: "url(#meClip)" }}
       >
         <Image
-          src={isMobile ? "/Assets/Images/MeMobile.webp" : "/Assets/Images/image_1.webp"}
+          src={
+            breakpoint === "xs" || breakpoint === "mobile"
+              ? "/Assets/Images/MeMobile.webp"
+              : "/Assets/Images/image_1.webp"
+          }
           alt="Portrait of Appash"
           fill
           ref={bgRef}
@@ -221,7 +252,7 @@ const Me = () => {
         <div className="w-[50%] relative z-10 h-full">
           <div
             ref={squareTopRef}
-            className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50 overflow-hidden xl:right-50 rotate-12 xl:top-3/7 top-10 xl:left-2/5 right-10"
+            className="w-[150px] h-[200px] xl:w-[210px] xl:h-[290px] bg-amber-50 absolute border-solid border-[6px] border-red-50 overflow-hidden xl:right-50 rotate-12 xl:top-3/7 top-10 xl:left-2/5  right-10"
           >
             <Image
               src="/Assets/Images/ImagePc.webp"
@@ -235,7 +266,7 @@ const Me = () => {
           </div>
           <div
             ref={squareBottomRef}
-            className="w-[150px] h-[200px] xl:w-[200px] xl:h-[300px] bg-amber-50 absolute left-90 border-solid border-[6px] border-red-50 xl:-rotate-12 top-10 right-10 xl:bottom-35"
+            className="w-[150px] h-[200px] xl:w-[200px] xl:h-[300px] bg-amber-50 absolute  lg:left-90 border-solid border-[6px] border-red-50 xl:-rotate-12  right-10 xl:bottom-35 lg:top-30 lg:bottom-2 lg:left-30 lg:-rotate-20"
           >
             <Image
               src="/Assets/Images/ImageViolin.webp"
@@ -254,7 +285,7 @@ const Me = () => {
         <div className="md:order-2 flex flex-col mb-15 items-center xl:justify-center justify-end text-center px-6 py-16 md:py-24">
           <div ref={contentRef} className="flex justify-between mt-30 flex-col">
             <div className="flex flex-col items-center justify-center h-[90%]">
-              <h3 className="font-sans mb-2 font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">
+              <h3 className="font-sans mb-2 font-semibold uppercase text-[3rem] lg:text-[4rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line">
                 Hello,{" "}
               </h3>
               <TextType
@@ -265,10 +296,10 @@ const Me = () => {
                 typingSpeed={100}
                 showCursor={true}
                 cursorCharacter="|"
-                className="font-sans font-semibold uppercase text-[3rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
+                className="font-sans font-semibold uppercase text-[3rem] lg:text-[4rem] xl:text-[5rem] leading-[1.05] text-white tracking-tight whitespace-pre-line"
               />
 
-              <p className="mt-2 max-w-xl text-white/85 text-xs md:text-sm leading-tight tracking-wide uppercase">
+              <p className="mt-2 xl:mt-5 max-w-xl text-white/85 text-xs xl:text-lg  md:text-sm leading-tight tracking-wide ">
                 I&apos;m a Visual Director working across video editing, graphic
                 design, and frontend development — blending storytelling,
                 design, and code into visuals that connect.

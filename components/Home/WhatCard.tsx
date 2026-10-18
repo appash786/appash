@@ -245,7 +245,7 @@ const WhatCard = forwardRef<WhatCardHandle, WhatCardProps>(({ card }, ref) => {
   return (
     <div
       ref={outerRef}
-      className={`relative md:absolute md:left-1/2 md:top-[60%] ${card.width} ${card.height} cursor-pointer group shrink-0`}
+      className={`relative md:absolute md:left-1/2 md:top-[60%] w-[280px] sm:w-[320px] md:w-[360px] lg:w-[320px] h-[340px] sm:h-[380px] md:h-[410px]" cursor-pointer group shrink-0`}
       onClick={toggleFlip}
     >
       {/* innerEl stays free for GSAP transforms; perspective lives here */}

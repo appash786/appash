@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import WhatCard, { CardData, WhatCardHandle } from "./WhatCard";
 import Image from "next/image";
 
+
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
 }
@@ -111,13 +112,26 @@ const What = () => {
     () => {
       if (!sectionRef.current) return;
 
-      const isMobile = window.innerWidth < 768;
-      const isTablet = window.innerWidth >= 768 && window.innerWidth < 1024;
+      type Breakpoint = "xs" | "mobile" | "md" | "lg" | "xl";
+      const getBreakpoint = (w: number): Breakpoint => {
+        if (w < 480) return "xs";
+        if (w < 768) return "mobile";
+        if (w < 1024) return "md";
+        if (w < 1280) return "lg";
+        return "xl";
+      };
+      const bp = getBreakpoint(window.innerWidth);
+      const isMobile = bp === "xs" || bp === "mobile";
 
-      const fanOffsetX = isTablet ? 180 : 260;
-      const rowOffsetX = isTablet ? 310 : 390;
-      const targetScale = isTablet ? 0.85 : 1;
-      const baseY = isTablet ? 40 : 60;
+      // Per-breakpoint fan/row layout values
+      const layoutConfig = {
+        xs:     { fanOffsetX: 0,   rowOffsetX: 0,   targetScale: 1,    baseY: 40 },
+        mobile: { fanOffsetX: 0,   rowOffsetX: 0,   targetScale: 1,    baseY: 40 },
+        md:     { fanOffsetX: 160, rowOffsetX: 280, targetScale: 0.8,  baseY: 35 },
+        lg:     { fanOffsetX: 210, rowOffsetX: 340, targetScale: 0.9,  baseY: 50 },
+        xl:     { fanOffsetX: 260, rowOffsetX: 390, targetScale: 1,    baseY: 60 },
+      }[bp];
+      const { fanOffsetX, rowOffsetX, targetScale, baseY } = layoutConfig;
 
       // --- Clip path bend (perf-critical: runs every scroll tick) ---
       const getMeClipPath = (topY: number, bottomY: number) => {
@@ -363,13 +377,13 @@ const What = () => {
             zIndex: 10,
             willChange: "clip-path",
           }}
-          className="relative w-full overflow-hidden aspect-4/5 xl:aspect-[21/9] flex justify-center items-center"
+          className="relative w-full overflow-hidden aspect-4/5 lg:aspect-[16/9] xl:aspect-[21/9] flex justify-center items-center"
           ref={WhatBgRef}
         >
           <Image
             ref={WhatBgImageRef}
             src="/Assets/Images/BgImage-5.webp"
-            className="w-full h-full object-cover xl:scale-125  will-change-transform"
+            className="w-full h-full object-cover lg:scale-110 xl:scale-125  will-change-transform"
             fill
             sizes="100vw"
             quality={75}
@@ -388,9 +402,9 @@ const What = () => {
           className="w-full md:w-screen min-h-screen md:h-screen flex flex-col md:block select-none will-change-transform"
         >
           {/* Background Fixed Text Banner */}
-          <div className="w-full md:h-full flex  flex-col relative pt-8 md:pt-0">
-            <div className="w-full xl:h-[450px] justify-center md:h-[500px] 0 z-11 group px-2 sm:px-12 xl:px-20 flex-col flex xl:gap-1">
-              <div className="w-full xl:h-[160px]  flex justify-end   overflow-hidden">
+          <div className="w-full md:h-full flex  flex-col relative  pt-8 md:pt-0">
+            <div className="w-full  xl:h-[450px] justify-center   md:h-[500px] 0 z-11 group px-2 sm:px-12 xl:px-20 flex-col flex xl:gap-1">
+   <div className="w-full xl:h-[160px]  flex justify-end   overflow-hidden">
                 <p
                   ref={textOneRef}
                   className="translate-y-50 z-100 text-4xl sm:text-6xl md:text-8xl xl:text-[180px] text-white uppercase font-bold tracking-tight"
@@ -407,6 +421,7 @@ const What = () => {
                   a Human touch
                 </p>
               </div>
+
             </div>
             {/* Flowing Text Strip */}
             <div className="w-full mt-6 md:mt-12 xl:mt-0 xl:h-[5vh] xl:min-h-[44px] py-2 md:py-0 bg-white/10 border-y border-white/10 text-white overflow-hidden flex items-center relative select-none">
@@ -435,7 +450,7 @@ const What = () => {
           </div>
 
           {/* Floating Cards Layer */}
-          <div className="relative md:absolute md:inset-0 flex flex-col md:block items-center justify-center gap-6 my-10 md:my-0 md:h-screen pointer-events-auto">
+          <div className="relative md:absolute md:inset-0 lg:mt-10 flex flex-col md:block items-center justify-center  gap-6 my-10 md:my-0 md:h-screen pointer-events-auto">
             {cardsData.map((card, index) => (
               <WhatCard
                 key={card.id}

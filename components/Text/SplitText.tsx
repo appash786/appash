@@ -124,7 +124,7 @@ const SplitText: React.FC<SplitTextProps> = ({
               stagger: delay / 1000,
               scrollTrigger: {
                 trigger: el,
-                start: "top 85%",
+                start: "top bottom",
                 once: true,
                 fastScrollEnd: true,
                 anticipatePin: 0.4,

@@ -2,10 +2,10 @@ import BlockReveal from "../Text/BlockReveal";
 
 const Brief = () => {
   return (
-    <section className="w-full px-4 z-6 xl:h-screen flex  items-center justify-center  min-h-[30vh] ">
+    <section className="w-full px-4 z-6 py-20 flex   items-center justify-center  min-h-[30vh] ">
       <div className="flex justify-center -500 items-center h-full">
         {/* Changed from <p> to <div> to allow nested block elements */}
-        <div className="text-black z-6 font-semibold text-center leading-10 xl:leading-27 text-[2.5rem] xl:text-[9rem]">
+        <div className="text-black z-6 font-semibold text-center leading-10 xl:leading-27 lg:leading-17 text-[2.5rem] xl:text-[9rem] lg:text-[5rem]">
           <BlockReveal
             className="text-black block"
             color="#A50000"

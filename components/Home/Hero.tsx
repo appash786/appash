@@ -48,7 +48,16 @@ export default function Hero() {
   const cameraZ = useRef({ value: 5 });
   const [revealActive, setRevealActive] = useState(false);
   const isAutoScrolling = useRef(false);
-  const [isMobile, setIsMobile] = useState(false);
+  type Breakpoint = "xs" | "mobile" | "md" | "lg" | "xl";
+  const getBreakpoint = (w: number): Breakpoint => {
+    if (w < 480) return "xs";
+    if (w < 768) return "mobile";
+    if (w < 1024) return "md";
+    if (w < 1280) return "lg";
+    return "xl";
+  };
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xl");
+  const isMobile = breakpoint === "xs" || breakpoint === "mobile";
   const toolsString = useMemo(() => {
     const single =
       heroTechItems.map((item) => item.toUpperCase()).join("  ✦  ") + "  ✦  ";
@@ -57,9 +66,7 @@ export default function Hero() {
 
   useGSAP(
     () => {
-      if (window.innerWidth <= 768) {
-        setIsMobile(true);
-      }
+      setBreakpoint(getBreakpoint(window.innerWidth));
       if (!isReady) return;
 
       const tl = gsap.timeline({
@@ -149,13 +156,25 @@ export default function Hero() {
       });
       // 1. Morph Phase: Clip-path the mask wrapper to create the cropped box (duration 1.0)
 
+      // Clip-path targets per breakpoint:
+      // xs:     very narrow phones — tight crop
+      // mobile: standard phones — moderate crop
+      // md:     tablets — wider crop with tighter vertical
+      // lg:     small desktops — close to xl
+      // xl:     large desktops — widest horizontal crop
+      const clipPathTarget = {
+        xs:     "inset(31% 8% 31% 8% round 0px)",
+        mobile: "inset(31% 8% 31% 8% round 0px)",
+        md:     "inset(22% 20% 22% 20% round 0px)",
+        lg:     "inset(14% 30% 14% 30% round 0px)",
+        xl:     "inset(12% 35% 12% 35% round 0px)",
+      }[breakpoint];
+
       tl.fromTo(
         maskRef.current,
         { clipPath: "inset(0% 0% 0% 0% round 0px)" },
         {
-          clipPath: isMobile
-            ? "inset(31% 8% 31% 8% round 0px)"
-            : "inset(12% 35% 12% 35% round 0px)",
+          clipPath: clipPathTarget,
           ease: "power2.inOut",
           duration: 1,
         },
@@ -176,16 +195,22 @@ export default function Hero() {
         );
       }
 
-      // 3. ZOOM EFFECT: On desktop animate camera Z; on mobile animate CSS scale
+      // 3. ZOOM EFFECT: mobile/xs → CSS scale, md/lg/xl → camera Z
       if (isMobile) {
+        // xs + mobile: scale down the foreground element to match crop
+        const mobileFgScale = {
+          xs:     { start: 0.65, end: 0.44 },
+          mobile: { start: 0.7,  end: 0.49 },
+        }[breakpoint as "xs" | "mobile"] ?? { start: 0.7, end: 0.49 };
+
         const mobileFg =
           containerRef.current?.querySelector(".mobile-fg-scale");
         if (mobileFg) {
           tl.fromTo(
             mobileFg,
-            { scale: 0.7 }, // mobile start size; end 0.49 fits the cropped box
+            { scale: mobileFgScale.start },
             {
-              scale: 0.49, // visually matches cameraZ 5 → 10.25 zoom-out
+              scale: mobileFgScale.end,
               ease: "power2.inOut",
               duration: 1,
             },
@@ -193,15 +218,22 @@ export default function Hero() {
           );
         }
       } else {
+        // md/lg/xl: animate WebGL camera zoom-out
+        const cameraZTarget = {
+          md: 5.5,
+          lg: 6.0,
+          xl: 6.5,
+        }[breakpoint as "md" | "lg" | "xl"] ?? 6.5;
+
         tl.fromTo(
           cameraZ.current,
           { value: 5 },
           {
-            value: 6.5,
-            ease: "power2.inOut", // 👈 Match this to the clipPath ease
-            duration: 1, // 👈 Match this to the clipPath duration (1)
+            value: cameraZTarget,
+            ease: "power2.inOut",
+            duration: 1,
           },
-          0, // 👈 Start exactly when the clipPath starts
+          0,
         );
       }
 
@@ -293,7 +325,7 @@ export default function Hero() {
             });
           },
           [],
-          0.9,
+          0,
         );
       }
 
@@ -356,7 +388,17 @@ export default function Hero() {
       >
         <svg
           className="w-full h-full"
-          viewBox={isMobile ? "0 0 344 674" : "0 0 1440 900"}
+          viewBox={
+            isMobile
+              ? breakpoint === "xs"
+                ? "0 0 320 680"
+                : "0 0 344 674"
+              : breakpoint === "md"
+              ? "0 0 1024 768"
+              : breakpoint === "lg"
+              ? "0 0 1280 900"
+              : "0 0 1440 900"
+          }
           preserveAspectRatio="xMidYMid slice"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
@@ -434,14 +476,14 @@ export default function Hero() {
       {/* This is the content behind that fades in at the end of the scroll */}
       <div
         ref={contentSectionRef}
-        className="h-screen bg-am w-full relative z-[60] xl:grid flex justify-center   flex-col  xl:grid-cols-[minmax(0,1fr)_30vw_minmax(0,1fr)] items-center pointer-events-none text-white px-4 md:px-10 opacity-0"
+        className="h-screen bg-am w-full relative z-[60] xl:grid flex justify-center    flex-col  xl:grid-cols-[minmax(0,1fr)_30vw_minmax(0,1fr)] items-center pointer-events-none text-white px-4 md:px-10 opacity-0"
       >
         {/* Left Column Text */}
-        <div className="flex  flex-col justify-center items-end text-right pr-4 md:pr-10 pointer-events-auto min-w-0 w-full">
+        <div className="flex  flex-col justify-center items-end text-right lg:pr-2 pr-4 md:pr-10 pointer-events-auto min-w-0 w-full">
           <div className={`text-[5vw] md:text-[3vw] leading-[0.95] uppercase`}>
             <div className="whitespace-nowrap">
               <div
-                className="HeroText uppercase cursor-pointer"
+                className="HeroText  lg:text-left xl:text-right  uppercase cursor-pointer"
                 style={{
                   fontSize: "clamp(1.8rem, 3.2vw, 3.8rem)",
                   lineHeight: 0.95,
@@ -475,14 +517,14 @@ export default function Hero() {
         </div>
 
         {/* Center Space (Empty spacer matching width of the masked hero scene) */}
-        <div className="w-[30vw]  h-[40vh] xl:h-full pointer-events-none" />
+        <div className="w-[31vw] xl:w-[36vw]  xl:flex lg:hidden h-[40vh] xl:h-full pointer-events-none" />
 
         {/* Right Column Text */}
-        <div className="flex  flex-col justify-center items-start text-left pl-4 md:pl-10 pointer-events-auto min-w-0 w-full">
+        <div className="flex  flex-col justify-center items-start text-left pl-4 md:pl-10 lg:pl-2 xl:pl-4  pointer-events-auto min-w-0 w-full">
           <div className={`text-[5vw] md:text-[3vw] leading-[0.95] uppercase`}>
             <div className="whitespace-nowrap">
               <div
-                className="HeroText uppercase cursor-pointer"
+                className="HeroText uppercase lg:text-right xl:text-left cursor-pointer"
                 style={{
                   fontSize: "clamp(1.8rem, 3.2vw, 3.8rem)",
                   lineHeight: 0.95,

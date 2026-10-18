@@ -17,33 +17,45 @@ const layer: React.CSSProperties = {
 };
 
 export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
-  const [isMobile, setIsMobile] = useState(false);
+  type Breakpoint = "xs" | "mobile" | "md" | "lg" | "xl";
+  const getBreakpoint = (w: number): Breakpoint => {
+    if (w < 480) return "xs";
+    if (w < 768) return "mobile";
+    if (w < 1024) return "md";
+    if (w < 1280) return "lg";
+    return "xl";
+  };
+  const [breakpoint, setBreakpoint] = useState<Breakpoint>("xl");
+  const isMobile = breakpoint === "xs" || breakpoint === "mobile";
   const [canvasesOn, setCanvasesOn] = useState(false);
 
   useEffect(() => {
-    const mql = window.matchMedia("(max-width: 768px)");
-    setIsMobile(mql.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mql.addEventListener("change", handler);
+    const update = () => {
+      const bp = getBreakpoint(window.innerWidth);
+      setBreakpoint(bp);
+      return bp;
+    };
 
-    // Start AFTER the first paint, when the main thread is idle.
+    const initialBp = update();
+
     const start = () => {
-      if (mql.matches) {
-        // Mobile never loads WebGL: the poster IS the hero.
-        // Hero waits for readyCount >= 2 before building its scroll timeline.
+      // xs and mobile skip WebGL: poster IS the hero
+      if (initialBp === "xs" || initialBp === "mobile") {
         onReady();
         onReady();
       } else {
         setCanvasesOn(true);
       }
     };
+
+    window.addEventListener("resize", update);
     const hasRIC = "requestIdleCallback" in window;
     const id = hasRIC
       ? window.requestIdleCallback(start, { timeout: 1500 })
       : window.setTimeout(start, 300);
 
     return () => {
-      mql.removeEventListener("change", handler);
+      window.removeEventListener("resize", update);
       if (hasRIC) window.cancelIdleCallback(id);
       else window.clearTimeout(id);
     };
@@ -53,7 +65,15 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
   const hidePoster = isReady && !isMobile;
 
   return (
-    <div style={{ position: "absolute", inset: 0, width: "100vw", height: "100vh", overflow: "hidden" }}>
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100vw",
+        height: "100vh",
+        overflow: "hidden",
+      }}
+    >
       {/* GSAP scales this element, so poster + canvases + text scale together */}
       <div
         className="visual-hero-container"
@@ -72,7 +92,22 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           }}
         >
           <picture style={{ display: "contents" }}>
-            <source media="(max-width: 768px)" srcSet="/Assets/Images/BgMobile.webp" />
+            {/* xs: very small phones */}
+            <source
+              media="(max-width: 479px)"
+              srcSet="/Assets/Images/BgMobile.webp"
+            />
+            {/* mobile: standard phones */}
+            <source
+              media="(max-width: 767px)"
+              srcSet="/Assets/Images/BgMobile.webp"
+            />
+            {/* md: tablets */}
+            <source
+              media="(max-width: 1023px)"
+              srcSet="/Assets/Images/bg.webp"
+            />
+            {/* lg + xl: desktops */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Assets/Images/bg.webp"
@@ -99,17 +134,26 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           }}
         >
           <picture style={{ display: "contents" }}>
-            <source media="(min-width: 769px)" srcSet="/Assets/Images/appash.webp" />
+            {/* lg + xl desktops: full-frame WebGL-matching crop */}
+            <source
+              media="(min-width: 1024px)"
+              srcSet="/Assets/Images/appash.webp"
+            />
+            {/* md tablets: contained portrait */}
+            <source
+              media="(min-width: 768px)"
+              srcSet="/Assets/Images/appash.webp"
+            />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/Assets/Images/appash_Full.webp"
               alt=""
               fetchPriority="high"
               decoding="async"
-              // Sizing is done with utility classes ON the element (not in Styles.css), so it
-              // can't get lost. Mobile: fit the screen HEIGHT (width auto, no max-width cap).
-              // Desktop (>=769px): cover the whole frame like the WebGL scene does.
-              className="h-full w-auto max-w-none object-contain object-bottom min-[769px]:w-full min-[769px]:object-cover min-[769px]:object-center"
+              // xs/mobile: fit the screen HEIGHT (width auto, no max-width cap).
+              // md (768px+): cover the whole frame like the WebGL scene does.
+              // lg/xl (1024px+): same cover behaviour.
+              className="h-full w-auto max-w-none object-contain object-bottom min-[768px]:w-full min-[768px]:object-cover min-[768px]:object-center"
             />
           </picture>
         </div>
@@ -142,33 +186,31 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
           }}
         >
           {/* NOT gated by isReady any more: the heading is real HTML from the first paint */}
-          <div className="w-full flex z-22 xl:justify-between justify-center items-center xl:flex-row flex-col xl:items-center h-[40vh]">
-            <div className="xl:w-[45%] w-full flex justify-center xl:justify-end ">
-              <h1 className="xl:text-5xl text-2xl leading-6 xl:leading-11 font-bold uppercase text-center italic ">
-                <span className="float-right">
-                  {" "}
-                  <BlockReveal className=" text-black block" color="#A50000" delay={0.15} duration={1.2}>
-                    <p className=" text-white block mr-3">Kerala&apos;s best</p>
-                  </BlockReveal>
-                </span>{" "}
+          <div className="w-full flex z-22  xl:justify-center xl:items-center flex-col  h-[40vh]">
+            <div className="xl: w-full flex mt-10 xl:mt-0  justify-center  ">
+              <h1 className="xl:text-5xl text-2xl uppercase xl:leading-tight  text-center  ">
+                <span className="font-semibold">Appash Appanath .</span> <br />
+                Design & code for brands
                 <br />
-                <BlockReveal className=" text-black block" color="#A50000" delay={0.25} duration={1.2}>
-                  <span className="mr-8 text-white">website </span>
-                  <span className="text-white mr-2"> frontend</span>
-                </BlockReveal>
-                <br />
-                <BlockReveal className=" text-black block" color="#A50000" delay={0.3} duration={1.2}>
-                  <span className="mr-10 text-white">Developer</span>
-                </BlockReveal>
+                that want more.
               </h1>
             </div>
-            <div className="xl:w-[45%] px-4 mt-4 xl:mt-0 mb-20 xl:mb-0 xl:px-0 ">
-              <p className="max-w-lg text-center text-xs xl:text-left text-white/80">
-                {/* TODO: replace this placeholder copy with your real intro */}
-                This is looking very close to the reference — deep top bend, centered text, rotated squares fully
-                scaled in on the right, and the photo bleeding on the left (currently gray placeholder). Let&apos;s
-                check the scale-in mid-transition and the bottom bend
-              </p>
+
+            <div className="relative z-[9999] pointer-events-auto flex flex-col lg:justify-center sm:flex-row items-center gap-2 mt-3 px-4">
+              <a
+                href="#form-section"
+                className="w-full sm:w-auto px-6 py-3 text-center font-medium text-white bg-[#A50000] hover:text-[#A50000] cursor-pointer z-1000 hover:bg-[#FFFDF4] transition-colors shadow-md"
+              >
+                Get Started
+              </a>
+
+              <a
+                href="https://wa.me/+916282238163"
+                className="w-full sm:w-auto px-6 py-3 text-center font-medium text-gray-300 border border-gray-700  hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+              >
+                <span>WhatsApp Me</span>
+                
+              </a>
             </div>
           </div>
 

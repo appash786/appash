@@ -16,7 +16,7 @@ const SITE_URL = "https://appzvile.vercel.app";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title:
-    "Appash | Video Editor, Graphic Designer & Frontend Developer in Kerala",
+    "Appash | Frontend Developer, Graphic Designer & Video Editor in Kerala",
   description:
     "Appash is a Kerala-based frontend developer, video editor and graphic designer creating cinematic videos, brands and fast modern websites.",
   keywords: [

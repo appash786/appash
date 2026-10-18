@@ -10,9 +10,13 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Appash Portfolio",
+  title: "Appash A S",
   description: "Portfolio of Appashi",
+  verification: {
+    google: 'xvVF8q4Q_byc9INHKDA-yIbVPDFTBe3rhAr2WMKhPZU',
+  },
 };
+
 
 export default function RootLayout({
   children,

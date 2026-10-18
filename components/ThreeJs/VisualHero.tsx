@@ -198,7 +198,7 @@ export default function VisualHero({ mouse, onReady, isReady, cameraZ }: any) {
 
             <div className="relative z-[9999] pointer-events-auto flex flex-col lg:justify-center sm:flex-row items-center gap-2 mt-3 px-4">
               <a
-                href="#form-section"
+                href="#Cta"
                 className="w-full sm:w-auto px-6 py-3 text-center font-medium text-white bg-[#A50000] hover:text-[#A50000] cursor-pointer z-1000 hover:bg-[#FFFDF4] transition-colors shadow-md"
               >
                 Get Started

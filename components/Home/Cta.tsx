@@ -72,7 +72,7 @@ const Cta = () => {
         setStatus("idle");
       }}
     />
-    <section
+    <section id="Cta"
       ref={ctaRef}
       className="w-full z-10 h-[70vh] flex flex-col relative"
     >

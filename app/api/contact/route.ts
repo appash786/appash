@@ -15,10 +15,10 @@ export async function POST(req: Request) {
 
   const { error } = await resend.emails.send({
     from: "Portfolio <onboarding@resend.dev>", // use your own domain later
-    to: "you@youremail.com",
+    to: "appash.das@gmail.com",
     replyTo: email,
     subject: `New enquiry from ${name}`,
-    text: message,
+    text: `From: ${name}\nEmail: ${email}\nMessage: ${message}`,
   });
 
   if (error) return NextResponse.json({ error: "Send failed" }, { status: 500 });

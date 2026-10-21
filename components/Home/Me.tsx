@@ -300,9 +300,7 @@ const Me = () => {
               />
 
               <p className="mt-2 xl:mt-5 max-w-xl text-white/85 text-xs xl:text-lg  md:text-sm leading-tight tracking-wide ">
-                I&apos;m a Visual Director working across video editing, graphic
-                design, and frontend development — blending storytelling,
-                design, and code into visuals that connect.
+I’m a self-taught creative with a passion for design, video, and web development. I explore ideas, experiment with different mediums, and turn what I learn into work that speaks for itself.
               </p>
             </div>
           </div>

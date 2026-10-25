@@ -19,14 +19,17 @@ const Skills = () => {
     {
       title: "CODING",
       model: "/Models/laptop.glb",
+      image: "/Assets/Images/Laptop.webp",
     },
     {
       title: "MOTION",
       model: "/Models/Camera.glb",
+      image: "/Assets/Images/Camera.webp",
     },
     {
       title: "DESIGN",
       model: "/Models/Brush.glb",
+      image: "/Assets/Images/Brush.webp",
     },
   ];
 
@@ -70,7 +73,7 @@ const Skills = () => {
 
       <div className="relative">
         {SkillsList.map((Skill, idx) => (
-          <SkillSection key={idx} text={Skill.title} model={Skill.model} />
+          <SkillSection key={idx} text={Skill.title} model={Skill.model} image={Skill.image} />
         ))}
       </div>
     </section>

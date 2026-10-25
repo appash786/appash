@@ -1,30 +1,28 @@
 "use client";
 
 import React, { useRef } from "react";
+import Image from "next/image";
 import Skills3D from "../ThreeJs/Skills3D";
 import FoldText from "../Text/FoldText";
 
 interface SkillSectionProps {
   text: string;
   model: string;
+  image: string;
 }
 
-
-
-const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
+const SkillSection: React.FC<SkillSectionProps> = ({ text, model, image }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   return (
     <section
       ref={containerRef}
       id={`Skills-${text}`}
-      className="relative w-screen h-[50vh] lg:h-[60vh] xl:h-screen  flex xl:items-center xl:justify-center  overflow-hidden"
+      className="relative w-screen h-[50vh] lg:h-[60vh] xl:h-screen flex xl:items-center xl:justify-center overflow-hidden"
     >
       {/* Background Text Layer (behind the 3D canvas) */}
-      <div className="absolute xl:inset-0 w-full   z-10  flex items-center justify-center pointer-events-none">
-        <div
-          className={` flex mb-40 flex-col items-center justify-center text-center`}
-        >
-          <p className="text-[5rem] lg:text-[10rem] xl:text-[20rem] BlackT font-semibold SkillHead ">
+      <div className="absolute xl:inset-0 w-full z-10 flex items-center justify-center pointer-events-none">
+        <div className="flex mb-40 flex-col items-center justify-center text-center">
+          <p className="text-[5rem] lg:text-[10rem] xl:text-[20rem] BlackT font-semibold SkillHead">
             <FoldText
               className=" "
               text={text}
@@ -44,10 +42,26 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
         </div>
       </div>
 
-      {/* Foreground 3D Canvas Layer */}
-      <Skills3D model={model} triggerRef={containerRef} />
+      {/* Mobile: static image with float animation (no 3D overhead) */}
+      <div className="xl:hidden absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+        <div className="animate-float relative w-full h-full">
+          <Image
+            src={image}
+            alt={text}
+            fill
+            className="object-contain"
+            priority={false}
+            sizes="40vw"
+          />
+        </div>
+      </div>
 
-      {/* Texture overlay to give a slightly grungy/pixelated look (optional) */}
+      {/* Desktop: 3D Canvas Layer */}
+      <div className="hidden xl:block w-full h-full">
+        <Skills3D model={model} triggerRef={containerRef} />
+      </div>
+
+      {/* Texture overlay */}
       <div
         className="absolute inset-0 z-30 pointer-events-none opacity-20 mix-blend-overlay"
         style={{
@@ -61,3 +75,4 @@ const SkillSection: React.FC<SkillSectionProps> = ({ text, model }) => {
 };
 
 export default SkillSection;
+

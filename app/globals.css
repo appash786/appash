@@ -152,6 +152,17 @@ body {
   }
 }
 
+@keyframes float {
+  0%   { transform: translateY(0px) scale(1); }
+  50%  { transform: translateY(-18px) scale(1.03); }
+  100% { transform: translateY(0px) scale(1); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+  will-change: transform;
+}
+
 .animate-marquee {
   display: flex;
   width: max-content;

@@ -386,7 +386,7 @@ const What = () => {
             className="w-full h-full object-cover will-change-transform"
             fill
             sizes="100vw"
-            quality={100}
+            quality={96}
             alt="portrait of Appash"
             loading='lazy'
           />

@@ -355,7 +355,7 @@ const What = () => {
 
   return (
     <>
-      <section className="relative w-full bg-black">
+      <section className="relative w-full overflow-hidden">
         <svg
           className="absolute w-0 h-0 pointer-events-none"
           aria-hidden="true"
@@ -364,7 +364,7 @@ const What = () => {
             <clipPath id="meClip-2" clipPathUnits="objectBoundingBox">
               <path
                 ref={clipPathRef}
-                d="M 0,0 Q 0.5,0 1,0 L 1,0.92 Q 0.5,0.92 0,0.92 Z"
+                d="M 0,0 Q 0.5,0 1,0 L 1,1 Q 0.5,1 0,1 Z"
               />
             </clipPath>
           </defs>
@@ -382,12 +382,13 @@ const What = () => {
         >
           <Image
             ref={WhatBgImageRef}
-            src="/Assets/Images/BgImage-5.webp"
-            className="w-full h-full object-cover lg:scale-110 xl:scale-125  will-change-transform"
+            src="/Assets/Images/image-5 (1).webp"
+            className="w-full h-full object-cover will-change-transform"
             fill
             sizes="100vw"
-            quality={75}
-            alt="BG Image"
+            quality={100}
+            alt="portrait of Appash"
+            loading='lazy'
           />
         </div>
       </section>

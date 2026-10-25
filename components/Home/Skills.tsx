@@ -18,7 +18,7 @@ const Skills = () => {
   const SkillsList = [
     {
       title: "CODING",
-      model: "/Models/Globe_4.glb",
+      model: "/Models/laptop.glb",
     },
     {
       title: "MOTION",

@@ -256,7 +256,7 @@ const Me = () => {
           >
             <Image
               src="/Assets/Images/ImagePc.webp"
-              alt="Portrait of Appash"
+              alt="Portrait of Appash using pc"
               fill
               unoptimized={true}
               className="z-6 object-cover"
@@ -270,7 +270,7 @@ const Me = () => {
           >
             <Image
               src="/Assets/Images/ImageViolin.webp"
-              alt="Portrait of Appash"
+              alt="Portrait of Appash playing Violin"
               fill
               unoptimized={true}
               className="z-6 object-cover"

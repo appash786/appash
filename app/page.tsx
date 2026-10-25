@@ -11,7 +11,7 @@ import Footer from "@/components/Home/Footer";
 
 import type { Metadata } from "next";
 
-const SITE_URL = "https://appzvile.vercel.app";
+const SITE_URL = "https://appzvile.com";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

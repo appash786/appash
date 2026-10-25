@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://appzvile.vercel.app',
+    sitemap: 'https://appzvile.com',
   }
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import LenisProvider from "@/components/Lenis/LenisProvider";
 import LoadingScreen from "@/components/Loading/LoadingScreen";
@@ -31,6 +32,19 @@ export default function RootLayout({
         3. Removed stray whitespace {" "} inside <body>
       */}
       <body className="m-0 p-0" suppressHydrationWarning>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-JWTFK7YWQJ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-JWTFK7YWQJ');
+          `}
+        </Script>
         <LoadingScreen />
         <LenisProvider>{children}</LenisProvider>
       </body>

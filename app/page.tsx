@@ -16,10 +16,12 @@ const SITE_URL = "https://appzvile.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title:
-    "Appash | Frontend Developer, Graphic Designer & Video Editor in Kerala",
+    "Appash A S | Web Developer, Graphic Designer & Video Editor in Kerala",
   description:
-    "Appash is a Kerala-based frontend developer, video editor and graphic designer creating cinematic videos, brands and fast modern websites.",
+    "Appash A S is a Kerala-based frontend developer, video editor and graphic designer creating cinematic videos, brands and fast modern websites.",
   keywords: [
+    "Appash A S",
+    "Appzvile",
     "Appash",
     "video editor Kerala",
     "graphic designer Kerala",
@@ -27,19 +29,19 @@ export const metadata: Metadata = {
     "freelance web developer India",
     "Next.js developer",
     "portfolio",
-    "visual director",
+
   ],
-  authors: [{ name: "Appash", url: SITE_URL }],
-  creator: "Appash",
+  authors: [{ name: "Appash A S", url: SITE_URL }],
+  creator: "Appash A S",
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Appash | Frontend Developer, Graphic Designer & Video Editor",
+    title: "Appash A S | Frontend Developer, Graphic Designer & Video Editor",
     description:
-      "Cinematic video, design and modern web development by Appash, based in Kerala, India.",
+      "Cinematic video, design and modern web development by Appash A S, based in Kerala, India.",
     url: SITE_URL,
-    siteName: "Appash Portfolio",
+    siteName: "Appash A S",
     images: [
       {
         url: "/og-image.jpg", // put a 1200x630 image in /public
@@ -53,7 +55,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Appash | Frontend Developer, Graphic Designer & Video Editor",
+    title: "Appash A S | Frontend Developer, Graphic Designer & Video Editor",
     description:
       "Cinematic video, design and modern web development from Kerala, India.",
     images: ["/og-image.jpg"],
@@ -86,7 +88,8 @@ const jsonLd = {
     {
       "@type": "Person",
       "@id": `${SITE_URL}/#person`,
-      name: "Appash",
+      name: "Appash A S",
+      alternateName: ["Appash", "Appzvile"],
       url: SITE_URL,
       image: `${SITE_URL}/og-image.jpg`,
       jobTitle: "Video Editor, Graphic Designer & Frontend Developer",
@@ -115,6 +118,7 @@ const jsonLd = {
       "@id": `${SITE_URL}/#website`,
       url: SITE_URL,
       name: "Appash A S",
+      alternateName: "Appzvile",
       inLanguage: "en-IN",
       publisher: { "@id": `${SITE_URL}/#person` },
     },

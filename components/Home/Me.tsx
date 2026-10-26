@@ -289,7 +289,7 @@ const Me = () => {
                 Hello,{" "}
               </h3>
               <TextType
-                as="h2"
+                as="p"
                 text={["I'm Appash"]}
                 startTyping={startTyping}
                 loop={false}

@@ -12,7 +12,7 @@ const montserrat = Montserrat({
 
 export const metadata: Metadata = {
   title: "Appash A S",
-  description: "Portfolio of Appashi",
+  description: "Portfolio of Appash A S",
   verification: {
     google: 'xvVF8q4Q_byc9INHKDA-yIbVPDFTBe3rhAr2WMKhPZU',
   },

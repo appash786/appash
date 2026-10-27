@@ -16,21 +16,47 @@ const SITE_URL = "https://appzvile.com";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title:
-    "Appash A S | Web Developer, Graphic Designer & Video Editor in Kerala",
+    "Website Developer in Kerala | Next.js & Creative Web Design | Appzvile",
   description:
-    "Appash A S is a Kerala-based frontend developer, video editor and graphic designer creating cinematic videos, brands and fast modern websites.",
-  keywords: [
-    "Appash A S",
-    "Appzvile",
-    "Appash",
-    "video editor Kerala",
-    "graphic designer Kerala",
-    "frontend developer Kerala",
-    "freelance web developer India",
-    "Next.js developer",
-    "portfolio",
+    "Appzvile builds fast, custom websites and interactive 3D experiences for businesses, startups and creators across Kerala and India. Next.js, React, Three.js.",
+keywords: [
+  // Brand
+  "Appzvile",
+  "Appash A S",
+  "Appash",
 
-  ],
+  // Core web dev services (high intent)
+  "website developer Kerala",
+  "web developer Kerala",
+  "web designer Kerala",
+  "website design and development Kerala",
+  "freelance web developer India",
+  "freelance website developer",
+  "hire Next.js developer",
+  "Next.js developer India",
+  "React developer for hire",
+  "custom website development",
+
+  // Business-type leads
+  "business website development",
+  "small business website Kerala",
+  "startup website developer",
+  "landing page developer",
+  "portfolio website developer",
+  "website for YouTubers and creators",
+
+  // Differentiators
+  "creative web developer",
+  "Three.js website developer",
+  "3D website design",
+  "interactive website development",
+  "animated website developer",
+
+  // Local cities
+  "web developer Thrissur",
+  "web developer Kochi",
+  "website developer Chalakudy",
+],
   authors: [{ name: "Appash A S", url: SITE_URL }],
   creator: "Appash A S",
   alternates: {
